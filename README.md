@@ -10,12 +10,14 @@ Both projects are using the Ardunio Framework. These files will contain our func
 
 ## Serial Comms Wiring
 
+Left = peripheral 1 
+Right = peripheral 2  
 | WROOM pin| AI thinker pin | Purpose |
 | -------- | -------------- | ------- |
-| GPIO12   | GPIO15         | CS      |
-| GPIO13   | GPIO14         | SCLK    |
-| GPIO14   | GPIO13         | COPI    |
-| GPIO27   | GPIO12         | CIPO    |
+| GPIO4/5  | GPIO15         | CS      |
+| GPIO14/18| GPIO14         | SCLK    |
+| GPIO12/19| GPIO13         | COPI    |
+| GPIO13/23| GPIO12         | CIPO    |
 
 # ESP32-CAM
 
