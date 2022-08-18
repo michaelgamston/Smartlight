@@ -72,7 +72,10 @@ void receive_image()
   // CS low means in transfer mode
   digitalWrite(CS, LOW);
   // start and wait to complete transaction
-  master.transfer(spi_master_tx_buf, spi_master_rx_buf, BUFFER_SIZE);
+  while (spi_master_rx_buf[0] != 5) // can change 5 to different checkbyte for each peripheral if needed
+  {
+    master.transfer(spi_master_tx_buf, spi_master_rx_buf, BUFFER_SIZE);
+  }
   Serial.println("master 1");
   delay(500);
   Serial.print(*spi_master_rx_buf);
