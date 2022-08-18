@@ -1,3 +1,21 @@
+/*
+                                                                  *****FILE HEADER*****
+File Name - camera_funcs.cpp
+
+Author/s - Joe Button
+
+Description - Functions for capturing and handling images from camera
+
+Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+
+Comments - See .cpp for updated comments
+
+Libraries - esp_camera: https://github.com/espressif/esp32-camera/blob/master/driver/include/esp_camera.h
+
+Repo - michaelgamston/MVP
+Branch - main
+
+*/
 #include "camera_funcs.h"
 #include "camera_pins.h"
 #include <Arduino.h>
