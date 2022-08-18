@@ -1,3 +1,21 @@
+/*
+                                                                  *****FILE HEADER*****
+File Name - serial_comms.cpp
+
+Author/s - Joe Button
+
+Description - Functions for SPI comms between FiPy and esp32-cam. Header file for serial_comms.cpp
+
+Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+
+Comments - See .cpp for updated comments
+
+Libraries - Uses esp32 dma SPI library: https://github.com/hideakitai/ESP32DMASPI
+
+Repo - michaelgamston/MVP
+Branch - main
+
+*/
 #include "serial_comms.h"
 #include <ESP32DMASPISlave.h>
 #include <Arduino.h>
@@ -51,14 +69,6 @@ void send_image()
   // if there is no transaction in queue, add transaction
   if (slave.remained() == 0) 
   {
-    // copy image into tx buffer
-    for (int i = 0; i < IMAGE_SIZE; i++) 
-    {
-      spi_slave_tx_buf[i] = (uint8_t) current_frame[i];
-      // spi_slave_tx_buf[i] = 12;
-      // Serial.println(spi_slave_tx_buf[i]);
-    }
-
     // this adds buffers to queue 
     slave.queue(spi_slave_rx_buf, spi_slave_tx_buf, BUFFER_SIZE);
   }

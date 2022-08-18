@@ -1,3 +1,19 @@
+/*
+                                                                  *****FILE HEADER*****
+File Name - serial_comms.cpp   
+                                  
+Author/s - Michael Gamston - Joe Button
+
+Description - This file contains functionality for the SPI communication protocol using two peripherals and one controller. 
+
+Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+
+Comments - Single bus API is throwing up problems. Currently being looked into by Zak Taylor.
+
+Repo - michaelgamston/MVP
+Branch - main
+
+*/
 #include "serial_comms.h"
 #include <ESP32DMASPIMaster.h>
 #include <Arduino.h>
@@ -44,6 +60,7 @@ void setup_spi()
   master2.setMaxTransferSize(BUFFER_SIZE);  // default: 4092 bytes
   // pins 
   pinMode(CS, OUTPUT);
+  pinMode(CS2, OUTPUT);
   // begin() after setting
   master.begin(HSPI, SCLK, CIPO, COPI, CS);  // default: HSPI (CS: 15, CLK: 14, MOSI: 13, MISO: 12)
   master2.begin(VSPI, SCLK2, CIPO2, COPI2, CS2);  // default: HSPI (CS: 15, CLK: 14, MOSI: 13, MISO: 12)

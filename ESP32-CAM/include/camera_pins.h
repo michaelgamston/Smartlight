@@ -1,3 +1,21 @@
+/*
+                                                                  *****FILE HEADER*****
+File Name - camera_pins.h
+
+Author/s - Joe Button
+
+Description - Definitions for which camera pins used
+
+Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+
+Comments - See .cpp for updated comments
+
+Libraries - N/A
+
+Repo - michaelgamston/MVP
+Branch - main
+
+*/
 #pragma once
 
 #define PWDN_GPIO_NUM     32
