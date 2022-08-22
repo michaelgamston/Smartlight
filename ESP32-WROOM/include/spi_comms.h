@@ -38,9 +38,57 @@ Branch - main
 extern "C" {
 #endif
 
+/* 
+     
+    Input: N/A
+    Output: Sets CS pins to High, clears buffer to 0, intializes SPI bus 
+    Return: N/A  
+    Action: 
+        - Changings CS to output 
+    Comments: N/A
+
+*/
 extern void init_spi(void);
+
+/* 
+     
+    Input: int peripheral number
+    Output: Changes selected CS pin to LOW
+    Return: N/A  
+    Action: 
+        - prepares selected peripheral for transaction 
+    Comments: N/A
+
+*/
 extern void enable_spi_peripheral(uint8_t peripheral_number);
+
+/* 
+     
+    Input: int peripheral number
+    Output: Changes selected CS pin to HIGH
+    Return: N/A  
+    Action: 
+        - ends connection to selected peripheral  
+    Comments: N/A
+
+*/
 extern void disable_spi_peripheral(uint8_t peripheral_number);
+
+/* 
+     
+    Input: int peripheral number, int data length 
+    Output: tansacts with selected peripheral, adds device id to hex string
+    Return: N/A  
+    Action: 
+        - starts transction
+        - calls enable_spi_peripheral
+        - transfers buffers 
+        - calls disable_spi_peripheral 
+        - ends transaction 
+        - adds Device ID to string 
+    Comments: N/A
+
+*/
 extern void spi_txn(uint8_t peripheral_number, uint16_t data_len);
 
 #ifdef __cplusplus
