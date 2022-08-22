@@ -25,6 +25,10 @@ SPIClass* hspi = NULL;
 
 uint8_t spi_buf[SPI_BUFFER_SIZE];
 
+
+void set_buf(void){
+  memset(spi_buf, 0, SPI_BUFFER_SIZE);
+}
 //
 // Initialise the SPI controller.
 //
@@ -50,7 +54,7 @@ void init_spi(void)
  Serial.println("CS, HIGH");
 // Initialise comms buffer.
 
- memset(spi_buf, 0, SPI_BUFFER_SIZE);
+ set_buf();
  Serial.println("memset");
 
  hspi = new SPIClass(HSPI);
@@ -129,9 +133,10 @@ void spi_txn(uint8_t peripheral_number, uint16_t data_len)
     Serial.println(peripheral_number);
     hspi->beginTransaction(SPISettings(SPI_BUS_SPEED, MSBFIRST, SPI_MODE0));
     enable_spi_peripheral(peripheral_number);
-    while (spi_buf[0] != 5){
-      hspi->transfer(spi_buf, data_len);
-    }
+    //while (spi_buf[0] != 5){
+    hspi->transfer(spi_buf, data_len);
+    //}
+    if (spi_buf[0] == 5) trigger = true;
     disable_spi_peripheral(peripheral_number);
     hspi->endTransaction();
     spi_buf[7501] = DEVICE_NAME;

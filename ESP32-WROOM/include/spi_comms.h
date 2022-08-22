@@ -38,13 +38,29 @@ Branch - main
 extern "C" {
 #endif
 
+
+bool trigger = false;
+
+/* 
+     
+    Input: N/A
+    Output:clears buffer to 0
+    Return: N/A  
+    Action: N/A
+    Comments: N/A
+
+*/
+void set_buf(void);
+
+
 /* 
      
     Input: N/A
     Output: Sets CS pins to High, clears buffer to 0, intializes SPI bus 
     Return: N/A  
     Action: 
-        - Changings CS to output 
+        - Changings CS to output
+        - Calls set_buf
     Comments: N/A
 
 */
