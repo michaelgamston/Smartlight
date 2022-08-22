@@ -34,19 +34,19 @@ const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
 const char *AWS_IOT_SUBSCRIBE_TOPIC = "FyPi/sub";
 
 //SPIFFS credentials
-const char* THINGNAME;
-const char* AWS_CERT_CA;
-const char* AWS_CERT_CRT;
-const char* AWS_CERT_PRIVATE;
-const char* AWS_IOT_ENDPOINT;
+// const char* THINGNAME;
+// const char* AWS_CERT_CA;
+// const char* AWS_CERT_CRT;
+// const char* AWS_CERT_PRIVATE;
+// const char* AWS_IOT_ENDPOINT;
 
-void getSPIFFS(){
-  spiffs.openFromFile("/ThingName.txt", THINGNAME);
-  spiffs.openFromFile("/CAcert.txt", AWS_CERT_CA);
-  spiffs.openFromFile("/CRTcert.txt", AWS_CERT_CRT);
-  spiffs.openFromFile("/Privkey.txt", AWS_CERT_PRIVATE);
-  spiffs.openFromFile("/Endpoint.txt", AWS_IOT_ENDPOINT);
-}
+// void getSPIFFS(){
+//   spiffs.openFromFile("/ThingName.txt", THINGNAME);
+//   spiffs.openFromFile("/CAcert.txt", AWS_CERT_CA);
+//   spiffs.openFromFile("/CRTcert.txt", AWS_CERT_CRT);
+//   spiffs.openFromFile("/Privkey.txt", AWS_CERT_PRIVATE);
+//   spiffs.openFromFile("/Endpoint.txt", AWS_IOT_ENDPOINT);
+// }
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
 {
@@ -76,7 +76,7 @@ void connectAWS()
     Serial.print(".");
   }
   
-  getSPIFFS();
+  //getSPIFFS();
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
   net.setCertificate(AWS_CERT_CRT);
@@ -114,7 +114,7 @@ void send_image(uint8_t *im, size_t size)
   client.write(im, size);
   client.endPublish();
   Serial.println("IMAGE PUBLISHED");
-  delay(10000);
+  delay(1000);
 } 
 
 void send_params()

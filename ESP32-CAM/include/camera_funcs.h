@@ -36,7 +36,7 @@ bool setup_camera(framesize_t);
 bool capture_still();
 bool motion_detect();
 void update_frame();
-void print_frame(uint8_t frame[H][W]);
+void print_frame(uint16_t frame[H][W]);
 size_t count_pixels();
 uint8_t *image_to_array();
 

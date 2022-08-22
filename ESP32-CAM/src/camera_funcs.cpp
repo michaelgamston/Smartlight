@@ -91,6 +91,7 @@ bool capture_still() {
       for (int x = 0; x < W; x++)
           current_frame[y*W +x] /= BLOCK_SIZE * BLOCK_SIZE;
 
+
 #if DEBUG
   Serial.println("Current frame:");
   print_frame(current_frame);
@@ -156,7 +157,7 @@ void update_frame() {
  * For serial debugging
  * @param frame
  */
-void print_frame(uint8_t frame[H*W]) {
+void print_frame(uint16_t frame[H*W]) {
   for (int y = 0; y < H; y++) {
       for (int x = 0; x < W; x++) {
           Serial.print(frame[y*W +x]);

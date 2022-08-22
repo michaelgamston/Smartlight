@@ -17,7 +17,7 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
-#include "serial_comms.h"
+#include "spi_comms.h"
 #include "AWS_funcs.h"
 #include <Arduino.h>
 
@@ -25,13 +25,20 @@ void setup()
 {
   Serial.begin(115200);
   connectAWS();
-  setup_spi();
+  init_spi();
+  delay(2000); // Allow time for peripherals to power up.
 }
 
 void loop()
 {
-  receive_image(); // Receive image via SPI from esp32-cam
-  send_image(spi_master_rx_buf, BUFFER_SIZE); // send image via WiFi to AWS S3 bucket along with some parameters
+  //recieve data from both peripheral's and send to aws
+  
+  for (int i = 1; i <= 2; i++){
+    Serial.println(i);
+    spi_txn(i, 20);
+    send_image(spi_buf, SPI_BUFFER_SIZE);
+  }
+  
   client.loop();
-  delay(2000);
+  //delay(2000);
 }

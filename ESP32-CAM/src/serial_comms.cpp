@@ -61,7 +61,10 @@ void copy_to_buffer()
   for (int i = 1; i <= IMAGE_SIZE; i++)
   {
     spi_slave_tx_buf[i] = (uint8_t) current_frame[i-1];
+
   }
+  
+
 }
 
 void send_image()
@@ -77,6 +80,7 @@ void send_image()
   // available() returns size of results of transaction,
   // and buffer is automatically updated
   // truthiness of slave.available is false if there is a transaction in progress, otherwise true
+
   while (slave.available()) 
   {
     // do something with received data: spi_slave_rx_buf
