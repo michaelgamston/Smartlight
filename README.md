@@ -1,3 +1,6 @@
+# Comments 
+Remember before launch to #define out any debuging. I.e serial stuff as this won't have function in final MVP product. 
+
 # Structure
 
 Two platformio projects:
