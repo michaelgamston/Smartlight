@@ -14,15 +14,15 @@ Left = peripheral 1
 Right = peripheral 2  
 | WROOM pin| AI thinker pin | Purpose |
 | -------- | -------------- | ------- |
-| GPIO2/4  | GPIO15         | CS      |
+|   N/A    | GPIO15         | CS      |
 | GPIO14   | GPIO14         | SCLK    |
-| GPIO12   | GPIO13         | COPI    |
-| GPIO13   | GPIO12         | CIPO    |
+| GPIO13   | GPIO13         | COPI    |
+| GPIO12   | GPIO12         | CIPO    |
 
 # ESP32-CAM
 
-(edit with comments when required)
+Functional MVP code. Sends image in byte array with check byte at position one using SPI. Ready for deloyment. 
 
 # ESP32-WROOM
 
-(edit with comments when required) 
+Recieves image from CAM and then adds ID info to byte array before sending to AWS. DALI functionality still in progress.

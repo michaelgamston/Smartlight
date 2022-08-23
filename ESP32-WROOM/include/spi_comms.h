@@ -22,7 +22,7 @@ Branch - main
 #define SPI_COMMS_H
 
 #define CS_1_GPIO_PIN 2   // SDI chip select GPIO pin for peripheral 1.
-#define CS_2_GPIO_PIN 4   // SDI chip select GPIO pin for peripheral 2.
+#define CS_2_GPIO_PIN 5   // SDI chip select GPIO pin for peripheral 2.
 
 #define SPI_BUS_SPEED 5000000  // 5 MHz.
 #define SPI_BUFFER_SIZE 8192   // 8192
@@ -30,7 +30,7 @@ Branch - main
 #define HSPI_MISO   12
 #define HSPI_MOSI   13
 #define HSPI_SCLK   14
-#define HSPI_SS     18         // Pin Not Connected.
+#define HSPI_SS     18    
 
 // Function Prototypes.
 
@@ -39,7 +39,6 @@ extern "C" {
 #endif
 
 
-bool trigger = false;
 
 /* 
      

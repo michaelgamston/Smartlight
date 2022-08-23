@@ -16,7 +16,6 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
-
 #include <Arduino.h>
 #include <SPI.h>
 #include "spi_comms.h"
@@ -133,10 +132,9 @@ void spi_txn(uint8_t peripheral_number, uint16_t data_len)
     Serial.println(peripheral_number);
     hspi->beginTransaction(SPISettings(SPI_BUS_SPEED, MSBFIRST, SPI_MODE0));
     enable_spi_peripheral(peripheral_number);
-    //while (spi_buf[0] != 5){
+    while (spi_buf[0] != 5){
     hspi->transfer(spi_buf, data_len);
-    //}
-    if (spi_buf[0] == 5) trigger = true;
+    }
     disable_spi_peripheral(peripheral_number);
     hspi->endTransaction();
     spi_buf[7501] = DEVICE_NAME;
