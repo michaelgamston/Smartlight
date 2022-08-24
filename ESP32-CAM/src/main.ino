@@ -47,8 +47,9 @@ void loop()
   if (motion_detect())
   {
     Serial.println("Motion detected");
-    send_image();
+    
   }
+  send_image();
   Serial.println(digitalRead(15));
   end = millis();
   Serial.printf("Took %d ms\n", end-start);

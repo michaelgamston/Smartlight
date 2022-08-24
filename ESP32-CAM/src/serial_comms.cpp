@@ -81,11 +81,13 @@ void send_image()
   // and buffer is automatically updated
   // truthiness of slave.available is false if there is a transaction in progress, otherwise true
 
-  while (!slave.available()) 
+  while (slave.available()) 
   {
     // do something with received data: spi_slave_rx_buf
+    slave.pop();
+    Serial.println("transferring");
     
   }
-  slave.pop();
-  Serial.println("transferring");
+
+  
 }
