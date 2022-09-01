@@ -22,7 +22,9 @@ Branch - main
 #pragma once
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include "Effortless_SPIFFS.h"
+
+
+//#define SPIFFS 
 
 extern WiFiClientSecure net;
 extern PubSubClient client;
@@ -32,18 +34,20 @@ extern const char *AWS_IOT_PUBLISH_IMAGES_TOPIC;
 extern const char *AWS_IOT_PUBLISH_PARAMS_TOPIC;
 extern const char *AWS_IOT_SUBSCRIBE_TOPIC;
 
-/* 
-     
-    Input: N/A
-    Output: Fills AWS certification variables 
-    Return: N/A  
-    Action: 
-        - uses eSPIFFS to read certs from SPIFFS memory  
-    Comments: N/A
+#ifdef SPIFFS
+    #include "Effortless_SPIFFS.h"
+    /* 
+        
+        Input: N/A
+        Output: Fills AWS certification variables 
+        Return: N/A  
+        Action: 
+            - uses eSPIFFS to read certs from SPIFFS memory  
+        Comments: N/A
 
-*/
-void getSPIFFS();
-
+    */
+    void getSPIFFS();
+#endif
 /* 
      
     Input: 

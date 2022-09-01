@@ -23,39 +23,57 @@ Branch - main
 #include "AWS_funcs.h"
 #include <ArduinoJson.h>
 #include "connect.h"
+#include "OTA.h"
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
-eSPIFFS spiffs;
 
 //topics 
 const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "FiPy/images";
 const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
-const char *AWS_IOT_SUBSCRIBE_TOPIC = "FyPi/sub";
+const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
 
-//SPIFFS credentials
-// const char* THINGNAME;
-// const char* AWS_CERT_CA;
-// const char* AWS_CERT_CRT;
-// const char* AWS_CERT_PRIVATE;
-// const char* AWS_IOT_ENDPOINT;
+#ifdef SPIFFS
+  eSPIFFS spiffs;
 
-// void getSPIFFS(){
-//   spiffs.openFromFile("/ThingName.txt", THINGNAME);
-//   spiffs.openFromFile("/CAcert.txt", AWS_CERT_CA);
-//   spiffs.openFromFile("/CRTcert.txt", AWS_CERT_CRT);
-//   spiffs.openFromFile("/Privkey.txt", AWS_CERT_PRIVATE);
-//   spiffs.openFromFile("/Endpoint.txt", AWS_IOT_ENDPOINT);
-// }
+  //SPIFFS credentials
+  const char* THINGNAME;
+  const char* AWS_CERT_CA;
+  const char* AWS_CERT_CRT;
+  const char* AWS_CERT_PRIVATE;
+  const char* AWS_IOT_ENDPOINT;
+
+  void getSPIFFS(){
+    spiffs.openFromFile("/ThingName.txt", THINGNAME);
+    spiffs.openFromFile("/CAcert.txt", AWS_CERT_CA);
+    spiffs.openFromFile("/CRTcert.txt", AWS_CERT_CRT);
+    spiffs.openFromFile("/Privkey.txt", AWS_CERT_PRIVATE);
+    spiffs.openFromFile("/Endpoint.txt", AWS_IOT_ENDPOINT);
+  }
+#endif
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
 {
-  Serial.print("incoming: ");
+  const char* url;
+  Serial.print("Incoming from topic: ");
   Serial.println(topic);
   StaticJsonDocument<200> doc;
   deserializeJson(doc, payload);
-  const char* incomeingMessage = doc["incomeingMessage"];
-  Serial.println(incomeingMessage);
+  int instruction = doc["instruction"];
+
+
+  switch(instruction){
+      // incoming message 
+    case 1: 
+      Serial.printf(doc["message"]);
+      Serial.println();
+      break;
+      // OTA update instrucion
+    case 2:
+      Serial.println("OTA update incoming");    
+      runOTA(doc["url"]);
+      break;
+  }
 }
 
 void connectAWS()
