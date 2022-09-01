@@ -8,9 +8,9 @@ Description - Functions for OTA updates
 
 Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
 
-Comments - See .cpp for comments 
+Comments - See README.md for instructions on how to send commands to the controller unit.
 
-Libraries - 
+Libraries - ESP32httpUpdate.h - https://github.com/suculent/esp32-http-update
 
 Repo - michaelgamston/MVP
 Branch - main
