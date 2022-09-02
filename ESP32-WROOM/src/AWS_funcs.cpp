@@ -8,12 +8,12 @@ Description - Function definitions for connecting the module to WIFI/LTE and AWS
 
 Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
 
-Comments - Must run SPIFFS.ino first to format memory for SPIFFS and save certs, otherwise you will not be able to 
+Comments - Must run spiffs.ino first to format memory for spiffs and save certs, otherwise you will not be able to 
             acess required certs as they won't exsist. 
 
 Libraries - WiFIClientSecure: https://github.com/espressif/arduino-esp32/tree/master/libraries/WiFiClientSecure
             PubSubClient: https://github.com/knolleary/pubsubclient
-            Effortless_SPIFFS: https://github.com/thebigpotatoe/Effortless-SPIFFS
+            Effortless_spiffs: https://github.com/thebigpotatoe/Effortless-spiffs
 
 
 Repo - michaelgamston/MVP
@@ -24,9 +24,11 @@ Branch - main
 #include <ArduinoJson.h>
 #include "connect.h"
 #include "OTA.h"
+#include "MySPIFFS.h"
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
+eSPIFFS spiffs;
 
 //topics 
 const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "FiPy/images";
@@ -34,21 +36,21 @@ const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
 const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
 
 #ifdef SPIFFS
-  eSPIFFS spiffs;
+  
 
-  //SPIFFS credentials
-  const char* THINGNAME;
-  const char* AWS_CERT_CA;
-  const char* AWS_CERT_CRT;
-  const char* AWS_CERT_PRIVATE;
-  const char* AWS_IOT_ENDPOINT;
+  //spiffs credentials
+  String THINGNAME;
+  String AWS_CERT_CA;
+  String AWS_CERT_CRT;
+  String AWS_CERT_PRIVATE;
+  String AWS_IOT_ENDPOINT;
 
-  void getSPIFFS(){
-    spiffs.openFromFile("/ThingName.txt", THINGNAME);
-    spiffs.openFromFile("/CAcert.txt", AWS_CERT_CA);
-    spiffs.openFromFile("/CRTcert.txt", AWS_CERT_CRT);
-    spiffs.openFromFile("/Privkey.txt", AWS_CERT_PRIVATE);
-    spiffs.openFromFile("/Endpoint.txt", AWS_IOT_ENDPOINT);
+  void getspiffs(){
+    THINGNAME = fileToString(spiffs, "/ThingName.txt");
+    AWS_CERT_CA = fileToString(spiffs, "/Endpoint.txt");
+    AWS_CERT_CRT = fileToString(spiffs, "/CAcert.txt");
+    AWS_CERT_PRIVATE = fileToString(spiffs, "/CRTcert.txt");
+    AWS_IOT_ENDPOINT = fileToString(spiffs, "/Privkey.txt");
   }
 #endif
 
@@ -93,8 +95,11 @@ void connectAWS()
     delay(500);
     Serial.print(".");
   }
-  
-  //getSPIFFS();
+
+#ifdef SPIFFS
+  getspiffs();
+#endif
+
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
   net.setCertificate(AWS_CERT_CRT);

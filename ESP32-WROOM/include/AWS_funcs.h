@@ -22,9 +22,10 @@ Branch - main
 #pragma once
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include "Effortless_SPIFFS.h"
 
 
-//#define SPIFFS 
+#define SPIFFS
 
 extern WiFiClientSecure net;
 extern PubSubClient client;
@@ -35,7 +36,7 @@ extern const char *AWS_IOT_PUBLISH_PARAMS_TOPIC;
 extern const char *AWS_IOT_SUBSCRIBE_TOPIC;
 
 #ifdef SPIFFS
-    #include "Effortless_SPIFFS.h"
+    
     /* 
         
         Input: N/A
