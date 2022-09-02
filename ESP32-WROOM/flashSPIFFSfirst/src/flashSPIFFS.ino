@@ -23,7 +23,7 @@ Branch - main
 
 #include "Arduino.h"
 #include "MySPIFFS.h"
-#include "secrets.h"
+
 
 void setup(){
 

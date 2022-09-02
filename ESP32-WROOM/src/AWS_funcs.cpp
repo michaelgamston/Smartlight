@@ -8,12 +8,12 @@ Description - Function definitions for connecting the module to WIFI/LTE and AWS
 
 Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
 
-Comments - Must run spiffs.ino first to format memory for spiffs and save certs, otherwise you will not be able to 
+Comments - Must run SPIFFS.ino first to format memory for SPIFFS and save certs, otherwise you will not be able to 
             acess required certs as they won't exsist. 
 
 Libraries - WiFIClientSecure: https://github.com/espressif/arduino-esp32/tree/master/libraries/WiFiClientSecure
             PubSubClient: https://github.com/knolleary/pubsubclient
-            Effortless_spiffs: https://github.com/thebigpotatoe/Effortless-spiffs
+            Effortless_SPIFFS: https://github.com/thebigpotatoe/Effortless-SPIFFS
 
 
 Repo - michaelgamston/MVP
@@ -28,29 +28,30 @@ Branch - main
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
-eSPIFFS spiffs;
 
 //topics 
 const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "FiPy/images";
 const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
 const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
 
-#ifdef SPIFFS
+#ifdef SPIFFSdef
   
 
-  //spiffs credentials
+  //SPIFFS credentials
   String THINGNAME;
   String AWS_CERT_CA;
   String AWS_CERT_CRT;
   String AWS_CERT_PRIVATE;
   String AWS_IOT_ENDPOINT;
 
-  void getspiffs(){
-    THINGNAME = fileToString(spiffs, "/ThingName.txt");
-    AWS_CERT_CA = fileToString(spiffs, "/Endpoint.txt");
-    AWS_CERT_CRT = fileToString(spiffs, "/CAcert.txt");
-    AWS_CERT_PRIVATE = fileToString(spiffs, "/CRTcert.txt");
-    AWS_IOT_ENDPOINT = fileToString(spiffs, "/Privkey.txt");
+  void getSPIFFS(){
+    THINGNAME = fileToString(SPIFFS, "/ThingName.txt");
+    AWS_IOT_ENDPOINT = fileToString(SPIFFS, "/Endpoint.txt");
+    AWS_CERT_CA= fileToString(SPIFFS, "/CAcert.txt");
+    AWS_CERT_CRT= fileToString(SPIFFS, "/CRTcert.txt");
+    AWS_CERT_PRIVATE= fileToString(SPIFFS, "/Privkey.txt");
+
+  
   }
 #endif
 
@@ -80,7 +81,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
 
 void connectAWS()
 {
-
+  delay(5000);
   // wifi connectivity is acheived with the following 14 lines
   //wifi station mode (standard wifi connection mode)
   WiFi.mode(WIFI_STA);
@@ -96,24 +97,27 @@ void connectAWS()
     Serial.print(".");
   }
 
-#ifdef SPIFFS
-  getspiffs();
+#ifdef SPIFFSdef
+  getSPIFFS();
 #endif
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA);
-  net.setCertificate(AWS_CERT_CRT);
-  net.setPrivateKey(AWS_CERT_PRIVATE);
+  net.setCACert(AWS_CERT_CA.c_str());
+  Serial.println("CA set");
+  net.setCertificate(AWS_CERT_CRT.c_str());
+  Serial.println("CRT set");
+  net.setPrivateKey(AWS_CERT_PRIVATE.c_str());
+  Serial.println("Priv key set");
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
-  client.setServer(AWS_IOT_ENDPOINT, 8883);
+  client.setServer(AWS_IOT_ENDPOINT.c_str(), 8883);
 
   // Create a message handler
   client.setCallback(messageHandler);
 
   Serial.println("CONNECTING TO AWS IOT");
 
-  while (!client.connect(THINGNAME))
+  while (!client.connect(THINGNAME.c_str()))
   {
     Serial.print(".");
     delay(100);

@@ -26,6 +26,7 @@ Branch - main
 
 void setup()
 {
+  SPIFFS.begin();
   Serial.begin(115200);
   connectAWS();
   init_spi();

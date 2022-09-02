@@ -1,6 +1,6 @@
 /*
                                                                   *****FILE HEADER*****
-File Name - connect.h
+File Name - secrets.h
 
 Author/s - Michael Gamston - Joe Button
 
@@ -8,7 +8,7 @@ Description - Contains connection credentials for SIM card and WiFI
 
 Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
 
-Comments - Whilst we build a prototype AWS certs will stay in here, once launch SPIFFS will be used to store them. 
+Comments - fiels to be stored in spiffs
 
 Libraries - N/A
 
@@ -17,36 +17,10 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
-#pragma once 
-#include "MySPIFFS.h"
+#pragma once
+#include <pgmspace.h>
 
-//TinyGSM (LTE)
-//#define TINY_GSM_MODEM_SIM7000
-//#define TINY_GSM_GPRS true
-//#define SerialMon Serial 
-//SoftwareSerial SerialAT(22,23);
-//#define SerialAT Serial1
-// #define TINY_GSM_DEBUG SerialMon
-
-//ESP32 serial2 
-//#define MODEM_UART_BAUD 115200
-//#define MODEM_DTR 25
-//#define MODEM_TX 17
-//#define MODEM_RX 16
-//#define MODEM_PWRKEY 12
-
-//SIM credentails 
-const char apn[] = "eezone";
-const char gprsUser[] = "eesecure";
-const char gprsPass[] = "password";
-
-//WiFi credentails
-const char WIFI_SSID[] = "AndroidAPBEF9";               
-const char WIFI_PASSWORD[] = "pqeh8163";   
-
-/* ALL OFFICE BASED UNITS HAVE BEEN CONFIGURED WITH SPIFFS */
 #ifndef SPIFFSdef
-
     static const char* THINGNAME = "Office_1 ";                        //change this
 
 
@@ -130,5 +104,4 @@ const char WIFI_PASSWORD[] = "pqeh8163";
     BpibWNVIgCQ01bRMmPlNVoJAK6AoE2WM6vFu76OWkoSc8FZaY0fHtg==
     -----END RSA PRIVATE KEY-----
     )KEY";
-
 #endif

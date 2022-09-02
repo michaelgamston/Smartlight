@@ -25,7 +25,7 @@ Branch - main
 #include "Effortless_SPIFFS.h"
 
 
-#define SPIFFS
+
 
 extern WiFiClientSecure net;
 extern PubSubClient client;
@@ -35,7 +35,7 @@ extern const char *AWS_IOT_PUBLISH_IMAGES_TOPIC;
 extern const char *AWS_IOT_PUBLISH_PARAMS_TOPIC;
 extern const char *AWS_IOT_SUBSCRIBE_TOPIC;
 
-#ifdef SPIFFS
+#ifdef SPIFFSdef
     
     /* 
         
