@@ -50,7 +50,7 @@ const char WIFI_PASSWORD[] = "pqeh8163";
     static const char* THINGNAME = "Office_1 ";                        //change this
 
 
-    static const char* AWS_IOT_ENDPOINT = "a2yk3gd80zfqa3-ats.iot.eu-west-2.amazonaws.com";       //change this
+    static const string AWS_IOT_ENDPOINT = "a2yk3gd80zfqa3-ats.iot.eu-west-2.amazonaws.com";       //change this
 
     // Amazon Root CA 1
     static const char* AWS_CERT_CA PROGMEM = R"EOF(

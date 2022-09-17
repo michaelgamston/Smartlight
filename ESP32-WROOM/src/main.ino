@@ -21,13 +21,13 @@ Branch - main
 #include "AWS_funcs.h"
 #include <Arduino.h>
 #include "dali.h"
-
-
+#include "MySPIFFS.h"
 
 void setup()
 {
   SPIFFS.begin();
   Serial.begin(115200);
+  Serial2.begin(19200);
   connectAWS();
   init_spi();
   delay(2000); // Allow time for peripherals to power up.
@@ -42,10 +42,8 @@ void loop()
     send_image(spi_buf, SPI_BUFFER_SIZE);
     set_buf();
   }
-  
 
-  
-  
-  client.loop();
+//  client.loop();
+
   delay(2000);
 }

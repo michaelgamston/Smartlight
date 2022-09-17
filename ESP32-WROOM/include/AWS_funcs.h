@@ -25,10 +25,7 @@ Branch - main
 #include "Effortless_SPIFFS.h"
 
 
-
-
 extern WiFiClientSecure net;
-extern PubSubClient client;
 
 // Constants
 extern const char *AWS_IOT_PUBLISH_IMAGES_TOPIC;
@@ -71,7 +68,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length);
      
     Input: N/A
     Output: DEBUG message for connection process 
-    Return: N/A  
+    Return: true on success 
     Action:
         - Connects WIFI 
         - Sets AWS certs
@@ -80,7 +77,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length);
     Comments: When we have LTE functionality we will not use WIFI
 
 */
-void connectAWS();
+bool connectAWS();
 
 /* 
      
@@ -107,3 +104,25 @@ void send_image(uint8_t *im, size_t size);
 
 */
 void send_params();
+
+/*
+    Input: N/A
+    Output: true on success
+    Return: N/A  
+    Action:
+        - Connects GSM modem to network and GPRS
+    Comments: 
+
+*/
+bool LTE_connect();
+
+/*
+    Input: N/A
+    Output: true on success
+    Return: N/A  
+    Action:
+        - test function to send simple message
+    Comments: 
+
+*/
+bool LTE_publish(const char *message);

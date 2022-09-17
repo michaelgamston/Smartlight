@@ -18,8 +18,9 @@ Branch - main
 */
 #include "OTA.h" 
 
+//FIXME fosr some reason this creates linkage problem when used with LTE (something to do with #include <SSLClient.h>)
 void runOTA(const char* url){
-    t_httpUpdate_return ret = ESPhttpUpdate.update(url);
+/*    t_httpUpdate_return ret = ESPhttpUpdate.update(url);
     switch(ret) {
         case HTTP_UPDATE_FAILED:
             Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
@@ -34,5 +35,5 @@ void runOTA(const char* url){
             break;
         default: Serial.println("Update Failed");
     }
-
+*/
 }
