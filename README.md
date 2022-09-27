@@ -13,8 +13,6 @@ Both projects are using the Ardunio Framework. These files will contain our func
 
 ## Serial Comms Wiring
 
-Left = peripheral 1 
-Right = peripheral 2  
 | WROOM pin| AI thinker pin | Purpose |
 | -------- | -------------- | ------- |
 | GPIO2/5  | GPIO15         | CS      |
