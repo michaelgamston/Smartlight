@@ -51,8 +51,25 @@ const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
     AWS_CERT_CRT= fileToString(SPIFFS, "/CRTcert.txt");
     AWS_CERT_PRIVATE= fileToString(SPIFFS, "/Privkey.txt");
 
+<<<<<<< Updated upstream
   
   }
+=======
+#ifdef USE_WIFI
+  WiFiClientSecure net = WiFiClientSecure();
+  PubSubClient *client = new PubSubClient(net);
+#else
+  #include <TinyGsmClient.h>
+  #include <SSLClient.h>
+
+  #define MODEM_UART_BAUD 19200
+  #define AWS_IOT_PUBLISH_TOPIC   "test"
+
+  TinyGsm modem(Serial2);
+  TinyGsmClient LTE_client(modem);
+  SSLClient LTE_secureClient(&LTE_client);
+  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, LTE_secureClient);
+>>>>>>> Stashed changes
 #endif
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
@@ -133,16 +150,99 @@ void connectAWS()
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
   Serial.println("AWS IoT TOPIC SUBSCRIBED");
+<<<<<<< Updated upstream
+=======
+  return true;
+}
+
+#else
+
+bool LTE_connect()
+{
+    Serial.println("Setting modem Baud rate");
+    modem.setBaud(MODEM_UART_BAUD);
+    Serial.println("Initializing modem ...");
+    modem.restart();
+
+    String modemInfo = modem.getModemInfo();
+    Serial.print("Modem info: ");
+    Serial.println(modemInfo);
+
+    Serial.print("SIM status: ");
+    Serial.println(modem.getSimStatus());
+
+    Serial.println("Connecting to network");
+    if (!modem.waitForNetwork()) {
+        Serial.println("network failed to connect");
+        delay(1000);
+        return false;
+    }
+    else if (modem.isNetworkConnected()) {
+        Serial.println("network connected");
+    }
+
+    Serial.println("Connecting GPRS..");
+    modem.gprsConnect("three.co.uk", "threeSIM", "password");
+    if (modem.isGprsConnected()) { 
+        Serial.println("GPRS connected");
+    }
+    else
+        Serial.println("GPRS not connected");
+
+    Serial.println("Getting signal Strength");
+    int signalQuality = modem.getSignalQuality();
+    Serial.print("Signal quality: ");
+    Serial.println(signalQuality);
+
+    return true;
+>>>>>>> Stashed changes
 }
 
 void send_image(uint8_t *im, size_t size) 
 {
+<<<<<<< Updated upstream
   client.beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false);
   client.write(im, size);
   client.endPublish();
   Serial.println("IMAGE PUBLISHED");
   delay(1000);
 } 
+=======
+    static bool LTE_ready = false;
+
+    if((LTE_ready == false) || (client->connected() == false) )
+    {
+        while(!LTE_ready)
+          LTE_ready = LTE_connect();
+
+        LTE_secureClient.setCACert(AWS_CERT_CA);
+        LTE_secureClient.setCertificate(AWS_CERT_CRT);
+        LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE);
+
+        for(int i=0; i<10; i++)
+        {
+            if(client->connect(THINGNAME))
+            {
+                client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+                Serial.println("CONNECTED AWS IOT");
+                return true;
+            }
+            else
+            {
+                Serial.print(".");
+                delay(100);
+            }
+        }
+    }
+    else
+    {
+        Serial.println("Already connected to AWS IOT");
+        return true;
+    }
+
+    return false;
+}
+>>>>>>> Stashed changes
 
 void send_params()
 {
