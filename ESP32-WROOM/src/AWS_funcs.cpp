@@ -25,7 +25,7 @@ Branch - main
 #include "connect.h"
 #include "OTA.h"
 #include "MySPIFFS.h"
-
+//#define USE_WIFI
 //topics 
 const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "FiPy/images";
 const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
@@ -50,18 +50,27 @@ const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
 
 #ifdef USE_WIFI
   WiFiClientSecure net = WiFiClientSecure();
-  PubSubClient *client = new PubSubClient(net);
+  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, net);
 #else
   #include <TinyGsmClient.h>
   #include <SSLClient.h>
+  #include <ArduinoHttpClient.h>
 
   #define MODEM_UART_BAUD 19200
   #define AWS_IOT_PUBLISH_TOPIC   "test"
 
+  const char server[]   = "vsh.pp.ua";
+  const char resource[] = "/TinyGSM/logo.txt";
+  const int  port       = 80;
+
   TinyGsm modem(Serial2);
   TinyGsmClient LTE_client(modem);
   SSLClient LTE_secureClient(&LTE_client);
-  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
+  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, LTE_secureClient);
+  HttpClient http(LTE_client, server, port);
+
+  
+
 #endif
 
 
@@ -136,22 +145,19 @@ bool connectAWS()
 #endif
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA.c_str());
+  net.setCACert(AWS_CERT_CA);
   Serial.println("CA set");
-  net.setCertificate(AWS_CERT_CRT.c_str());
+  net.setCertificate(AWS_CERT_CRT);
   Serial.println("CRT set");
-  net.setPrivateKey(AWS_CERT_PRIVATE.c_str());
+  net.setPrivateKey(AWS_CERT_PRIVATE);
   Serial.println("Priv key set");
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
-  client->setServer(AWS_IOT_ENDPOINT.c_str(), 8883);
-
   // Create a message handler
-  client->setCallback(messageHandler);
 
   Serial.println("CONNECTING TO AWS IOT");
 
-  while (!client->connect(THINGNAME.c_str()))
+  while (!client->connect(THINGNAME))
   {
     Serial.print(".");
     delay(100);
@@ -171,6 +177,55 @@ bool connectAWS()
 }
 
 #else
+
+bool http_test(){
+
+  Serial.print(F("Performing HTTP GET request... "));
+  int err = http.get(resource);
+  if (err != 0) {
+    Serial.println(F("failed to connect"));
+    delay(10000);
+    return false;
+  }
+
+  int status = http.responseStatusCode();
+  Serial.print(F("Response status code: "));
+  Serial.println(status);
+  if (!status) {
+    delay(10000);
+    return false;
+  }
+
+  Serial.println(F("Response Headers:"));
+  while (http.headerAvailable()) {
+    String headerName  = http.readHeaderName();
+    String headerValue = http.readHeaderValue();
+    Serial.println("    " + headerName + " : " + headerValue);
+  }
+
+  int length = http.contentLength();
+  if (length >= 0) {
+    Serial.print(F("Content length is: "));
+    Serial.println(length);
+  }
+  if (http.isResponseChunked()) {
+    Serial.println(F("The response is chunked"));
+  }
+
+  String body = http.responseBody();
+  Serial.println(F("Response:"));
+  Serial.println(body);
+
+  Serial.print(F("Body length is: "));
+  Serial.println(body.length());
+
+  // Shutdown
+
+  http.stop();
+
+  return true;
+}
+
 
 bool LTE_connect()
 {
@@ -209,6 +264,8 @@ bool LTE_connect()
     Serial.print("Signal quality: ");
     Serial.println(signalQuality);
 
+    //if (http_test()) Serial.println("http successful");
+
     return true;
 }
 
@@ -221,13 +278,13 @@ bool connectAWS()
         while(!LTE_ready)
           LTE_ready = LTE_connect();
 
-        LTE_secureClient.setCACert(AWS_CERT_CA.c_str());
-        LTE_secureClient.setCertificate(AWS_CERT_CRT.c_str());
-        LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE.c_str());
-
+        LTE_secureClient.setCACert(AWS_CERT_CA);
+        LTE_secureClient.setCertificate(AWS_CERT_CRT);
+        LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE);
+        Serial.print("Certs set");
         for(int i=0; i<10; i++)
         {
-            if(client->connect(THINGNAME.c_str()))
+            if(client->connect(THINGNAME))
             {
                 client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
                 Serial.println("CONNECTED AWS IOT");

@@ -110,6 +110,17 @@ void send_params();
     Output: true on success
     Return: N/A  
     Action:
+        - Test GSM connect with HTTP request to if is connection avaiable 
+    Comments: 
+
+*/
+bool http_test();
+
+/*
+    Input: N/A
+    Output: true on success
+    Return: N/A  
+    Action:
         - Connects GSM modem to network and GPRS
     Comments: 
 

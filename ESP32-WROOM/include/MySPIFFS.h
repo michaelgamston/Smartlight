@@ -25,7 +25,7 @@ Branch - main
 #include "SPIFFS.h"
 
 
-#define SPIFFSdef
+//#define SPIFFSdef
 
 /* 
    You only need to format SPIFFS the first time you run a
