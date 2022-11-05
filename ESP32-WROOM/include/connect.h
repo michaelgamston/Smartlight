@@ -47,13 +47,13 @@ const char WIFI_PASSWORD[] = "pqeh8163";
 /* ALL OFFICE BASED UNITS HAVE BEEN CONFIGURED WITH SPIFFS */
 #ifndef SPIFFSdef
 
-static const char* THINGNAME = "Office_2";                        //change this
+static const String THINGNAME = "Office_2";                        //change this
 
 
-static const char* AWS_IOT_ENDPOINT = "a2yk3gd80zfqa3-ats.iot.eu-west-2.amazonaws.com";       //change this
+static const String AWS_IOT_ENDPOINT = "a2yk3gd80zfqa3-ats.iot.eu-west-2.amazonaws.com";       //change this
 
 // Amazon Root CA 1
-static const char* AWS_CERT_CA PROGMEM = R"EOF(
+static const String AWS_CERT_CA PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
 MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF
 ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6
@@ -77,7 +77,7 @@ rqXRfboQnoZsG4q5WTP468SQvvG5
 )EOF";
 
 // Device Certificate                                               //change this
-static const char* AWS_CERT_CRT PROGMEM = R"KEY(
+static const String AWS_CERT_CRT PROGMEM = R"KEY(
 -----BEGIN CERTIFICATE-----
 MIIDWTCCAkGgAwIBAgIUMcopFHX15k7uK4xfyczcsoRW4AgwDQYJKoZIhvcNAQEL
 BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g
@@ -101,7 +101,7 @@ FFFgRiIu+ZLrHmMPtnEpKH/XIGNznK5YFnlzbL/Tssmh6r9lINdjLo+mmbZI
 )KEY";
 
 // Device Private Key                                               //change this
-static const char* AWS_CERT_PRIVATE PROGMEM = R"KEY(
+static const String AWS_CERT_PRIVATE PROGMEM = R"KEY(
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEA3U0fWAc22uC30N8jBRrhe1AxrWGz9d25Hyl/dUFQ/bNvO0zV
 e4gHkTeVgzEyxRSaOmNOlG1a1ZtuWvIeBTjL/KN5O9tLPAFtHCf6PiKUpKafq1Q4

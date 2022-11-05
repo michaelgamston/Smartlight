@@ -23,15 +23,24 @@ Branch - main
 #include "dali.h"
 #include "MySPIFFS.h"
 
+#define PIN_TX              27
+#define PIN_RX              26
+
 void setup()
 {
   SPIFFS.begin();
   Serial.begin(115200);
-  Serial2.begin(19200);
+  Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
+
   connectAWS();
   init_spi();
   delay(2000); // Allow time for peripherals to power up.
 
+while(1)
+{
+  LTE_publish("Hello from SIM7600");
+  delay(10000);
+}
 }
 
 void loop()

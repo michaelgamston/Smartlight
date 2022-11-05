@@ -52,25 +52,20 @@ const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
   WiFiClientSecure net = WiFiClientSecure();
   PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, net);
 #else
-  #include <TinyGsmClient.h>
-  #include <SSLClient.h>
-  #include <ArduinoHttpClient.h>
+    #include <TinyGsmClient.h>
+    #include <SSLClient.h>
 
-  #define MODEM_UART_BAUD 19200
-  #define AWS_IOT_PUBLISH_TOPIC   "test"
+    #define MODEM_UART_BAUD     115200
+    #define PWR_PIN             4
+    #define POWER_PIN           25
+    #define IND_PIN             36
 
-  const char server[]   = "vsh.pp.ua";
-  const char resource[] = "/TinyGSM/logo.txt";
-  const int  port       = 80;
+    #define AWS_IOT_PUBLISH_TOPIC   "test"
 
-  TinyGsm modem(Serial2);
-  TinyGsmClient LTE_client(modem);
-  SSLClient LTE_secureClient(&LTE_client);
-  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, LTE_secureClient);
-  HttpClient http(LTE_client, server, port);
-
-  
-
+    TinyGsm modem(Serial1);
+    TinyGsmClient LTE_client(modem);
+    SSLClient LTE_secureClient(&LTE_client);
+    PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
 
@@ -178,62 +173,57 @@ bool connectAWS()
 
 #else
 
-bool http_test(){
-
-  Serial.print(F("Performing HTTP GET request... "));
-  int err = http.get(resource);
-  if (err != 0) {
-    Serial.println(F("failed to connect"));
-    delay(10000);
-    return false;
-  }
-
-  int status = http.responseStatusCode();
-  Serial.print(F("Response status code: "));
-  Serial.println(status);
-  if (!status) {
-    delay(10000);
-    return false;
-  }
-
-  Serial.println(F("Response Headers:"));
-  while (http.headerAvailable()) {
-    String headerName  = http.readHeaderName();
-    String headerValue = http.readHeaderValue();
-    Serial.println("    " + headerName + " : " + headerValue);
-  }
-
-  int length = http.contentLength();
-  if (length >= 0) {
-    Serial.print(F("Content length is: "));
-    Serial.println(length);
-  }
-  if (http.isResponseChunked()) {
-    Serial.println(F("The response is chunked"));
-  }
-
-  String body = http.responseBody();
-  Serial.println(F("Response:"));
-  Serial.println(body);
-
-  Serial.print(F("Body length is: "));
-  Serial.println(body.length());
-
-  // Shutdown
-
-  http.stop();
-
-  return true;
+// PWR_PIN : This Pin is the PWR-KEY of the SIM7600
+// The time of active low level impulse of PWRKEY pin to power on module 500 ms
+void modemPowerOn()
+{
+  Serial.println("powering ON modem");
+  pinMode(PWR_PIN, OUTPUT);
+  digitalWrite(PWR_PIN, LOW);
+  delay(500);
+  digitalWrite(PWR_PIN, HIGH);
 }
-
 
 bool LTE_connect()
 {
+    Serial.println("Initializing modem ...");
+
+    // POWER_PIN : This pin controls the power supply of the SIM7600
+    pinMode(POWER_PIN, OUTPUT);
+    digitalWrite(POWER_PIN, HIGH);
+    delay(1000);
+
+    // IND_PIN: It is connected to the SIM7600 status Pin,
+    // through which you know whether the module starts normally.
+    pinMode(IND_PIN, INPUT);
+
+    for(int retry=0; retry<2; retry++)
+    {
+        modemPowerOn();
+        int i = 0;
+        for(i=0; i<100; i++)
+        {
+            if(digitalRead(IND_PIN) == HIGH)
+            {
+              break;
+            }
+
+            delay(500);
+            Serial.println("waiting modem to start up");
+        }
+
+        if(i < 100)
+        {
+            Serial.print("modem is up in ");
+            Serial.print(i*500);
+            Serial.println("ms");
+            break;
+        }
+    }
+
+    delay(2000);
     Serial.println("Setting modem Baud rate");
     modem.setBaud(MODEM_UART_BAUD);
-    Serial.println("Initializing modem ...");
-    modem.restart();
-
     String modemInfo = modem.getModemInfo();
     Serial.print("Modem info: ");
     Serial.println(modemInfo);
@@ -278,13 +268,13 @@ bool connectAWS()
         while(!LTE_ready)
           LTE_ready = LTE_connect();
 
-        LTE_secureClient.setCACert(AWS_CERT_CA);
-        LTE_secureClient.setCertificate(AWS_CERT_CRT);
-        LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE);
+        LTE_secureClient.setCACert(AWS_CERT_CA.c_str());
+        LTE_secureClient.setCertificate(AWS_CERT_CRT.c_str());
+        LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE.c_str());
         Serial.print("Certs set");
         for(int i=0; i<10; i++)
         {
-            if(client->connect(THINGNAME))
+             if(client->connect(THINGNAME.c_str()))
             {
                 client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
                 Serial.println("CONNECTED AWS IOT");
