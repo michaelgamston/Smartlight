@@ -19,8 +19,8 @@ Branch - main
 */
 #pragma once 
 
-#include <HTTPClient.h>
-#include <ESP32httpUpdate.h>
+//#include <HTTPClient.h>
+//#include <ESP32httpUpdate.h>
 
 /* 
         
