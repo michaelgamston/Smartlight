@@ -1,24 +1,16 @@
 /*
                                                                   *****FILE HEADER*****
 File Name - AWS_funcs.cpp
-
 Author/s - Michael Gamston - Joe Button
-
 Description - Function definitions for connecting the module to WIFI/LTE and AWS 
-
 Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
-
 Comments - Must run SPIFFS.ino first to format memory for SPIFFS and save certs, otherwise you will not be able to 
             acess required certs as they won't exsist. 
-
 Libraries - WiFIClientSecure: https://github.com/espressif/arduino-esp32/tree/master/libraries/WiFiClientSecure
             PubSubClient: https://github.com/knolleary/pubsubclient
             Effortless_SPIFFS: https://github.com/thebigpotatoe/Effortless-SPIFFS
-
-
 Repo - michaelgamston/MVP
 Branch - main
-
 */
 #include "AWS_funcs.h"
 #include <ArduinoJson.h>
@@ -46,22 +38,6 @@ const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
     AWS_CERT_CRT= fileToString(SPIFFS, "/CRTcert.txt");
     AWS_CERT_PRIVATE= fileToString(SPIFFS, "/Privkey.txt");  
   }
-=======
-#ifdef USE_WIFI
-  WiFiClientSecure net = WiFiClientSecure();
-  PubSubClient *client = new PubSubClient(net);
-#else
-  #include <TinyGsmClient.h>
-  #include <SSLClient.h>
-
-  #define MODEM_UART_BAUD 19200
-  #define AWS_IOT_PUBLISH_TOPIC   "test"
-
-  TinyGsm modem(Serial2);
-  TinyGsmClient LTE_client(modem);
-  SSLClient LTE_secureClient(&LTE_client);
-  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, LTE_secureClient);
->>>>>>> Stashed changes
 #endif
 
 #ifdef USE_WIFI
