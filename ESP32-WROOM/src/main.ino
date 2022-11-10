@@ -61,7 +61,7 @@ void setup()
   softSerial.begin(115200);
 
   connectAWS();
-
+ 
   init_spi();
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
