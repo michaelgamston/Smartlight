@@ -44,6 +44,7 @@ void sendDALIactivation(void* parameters){
     Serial.println(activationBit);
 
     vTaskDelay(1 / portTICK_PERIOD_MS);
+    
   }
 }
 
