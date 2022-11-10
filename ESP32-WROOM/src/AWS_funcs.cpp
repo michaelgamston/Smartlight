@@ -68,6 +68,9 @@ const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
     PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
+void checkMQTT(void){
+  client->loop();
+}
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
 {

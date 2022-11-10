@@ -22,9 +22,32 @@ Branch - main
 #include <Arduino.h>
 #include "dali.h"
 #include "MySPIFFS.h"
+//#include <FreeRTOS.h>
+#include <SoftwareSerial.h>
 
 #define PIN_TX              27
 #define PIN_RX              26
+
+const byte rxPin = 33;
+const byte txPin = 32;
+
+
+static const int DALIActivationPin = GPIO_NUM_5;
+static int activationBit = 0b0;
+
+SoftwareSerial softSerial (rxPin, txPin);
+
+void sendDALIactivation(void* parameters){
+  while(1){
+
+    softSerial.write(activationBit);
+    Serial.println(activationBit);
+
+    vTaskDelay(1 / portTICK_PERIOD_MS);
+    
+  }
+}
+
 
 void setup()
 {
@@ -32,27 +55,39 @@ void setup()
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
 
-  connectAWS();
-  init_spi();
-  delay(2000); // Allow time for peripherals to power up.
+  pinMode(DALIActivationPin, OUTPUT);
+  pinMode(rxPin, INPUT);
+  pinMode(txPin, OUTPUT);
 
-while(1)
-{
-  LTE_publish("Hello from SIM7600");
-  delay(10000);
-}
+  softSerial.begin(115200);
+
+  connectAWS();
+ 
+  init_spi();
+  // Allow time for peripherals to power up.
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
+
+  xTaskCreatePinnedToCore(
+		sendDALIactivation,
+		"activate DALI",
+		1024,
+		NULL,
+		1,
+		NULL,
+		1
+  );
+
+  //Delete Setup and loop tasks once created 
 }
 
 void loop()
 {
-  //recieve data from both peripheral's and send to aws
   for (int i = 1; i <= 2; i++){
     spi_txn(i, 8192);
     send_image(spi_buf, SPI_BUFFER_SIZE);
     set_buf();
+    //Serial.println("looped");
   }
-
-//  client.loop();
-
-  delay(2000);
+  checkMQTT();
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
 }

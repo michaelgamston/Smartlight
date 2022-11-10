@@ -46,6 +46,9 @@ extern const char *AWS_IOT_SUBSCRIBE_TOPIC;
     */
     void getSPIFFS();
 #endif
+
+void checkMQTT(void);
+
 /* 
      
     Input: 
