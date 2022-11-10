@@ -64,7 +64,6 @@ void checkMQTT(void){
   client->loop();
 }
 
-
 void messageHandler(char* topic, byte* payload, unsigned int length)
 {
   const char* url;
