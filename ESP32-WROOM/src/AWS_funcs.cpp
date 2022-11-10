@@ -60,6 +60,10 @@ const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
     PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
+void checkMQTT(void){
+  client->loop();
+}
+
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
 {
@@ -80,7 +84,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
       // OTA update instrucion
     case 2:
       Serial.println("OTA update incoming");    
-      runOTA(doc["url"]);
+      //runOTA(doc["url"]);
       break;
   }
 }
@@ -91,7 +95,7 @@ void send_image(uint8_t *im, size_t size)
   client->write(im, size);
   client->endPublish();
   Serial.println("IMAGE PUBLISHED");
-  delay(1000);
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
 } 
 
 void send_params()
@@ -111,7 +115,7 @@ void send_params()
 
 bool connectAWS()
 {
-  delay(5000);
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
   // wifi connectivity is acheived with the following 14 lines
   //wifi station mode (standard wifi connection mode)
   WiFi.mode(WIFI_STA);
@@ -123,7 +127,7 @@ bool connectAWS()
   // while wifi isnt connected print message and wait for connection before moving on 
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
     Serial.print(".");
   }
 
@@ -147,7 +151,7 @@ bool connectAWS()
   while (!client->connect(THINGNAME))
   {
     Serial.print(".");
-    delay(100);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 
   if (!client->connected())
@@ -172,7 +176,7 @@ void modemPowerOn()
   Serial.println("powering ON modem");
   pinMode(PWR_PIN, OUTPUT);
   digitalWrite(PWR_PIN, LOW);
-  delay(500);
+  vTaskDelay(500 / portTICK_PERIOD_MS);
   digitalWrite(PWR_PIN, HIGH);
 }
 
@@ -183,7 +187,7 @@ bool LTE_connect()
     // POWER_PIN : This pin controls the power supply of the SIM7600
     pinMode(POWER_PIN, OUTPUT);
     digitalWrite(POWER_PIN, HIGH);
-    delay(1000);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     // IND_PIN: It is connected to the SIM7600 status Pin,
     // through which you know whether the module starts normally.
@@ -200,7 +204,7 @@ bool LTE_connect()
               break;
             }
 
-            delay(500);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
             Serial.println("waiting modem to start up");
         }
 
@@ -213,7 +217,7 @@ bool LTE_connect()
         }
     }
 
-    delay(2000);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
     Serial.println("Setting modem Baud rate");
     modem.setBaud(MODEM_UART_BAUD);
     String modemInfo = modem.getModemInfo();
@@ -226,7 +230,7 @@ bool LTE_connect()
     Serial.println("Connecting to network");
     if (!modem.waitForNetwork()) {
         Serial.println("network failed to connect");
-        delay(1000);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         return false;
     }
     else if (modem.isNetworkConnected()) {
@@ -275,7 +279,7 @@ bool connectAWS()
             else
             {
                 Serial.print(".");
-                delay(100);
+                vTaskDelay(100 / portTICK_PERIOD_MS);
             }
         }
     }
@@ -300,7 +304,7 @@ bool LTE_publish(const char *message)
         }
 
         Serial.println("Publish failed");
-        delay(100);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
     return false;

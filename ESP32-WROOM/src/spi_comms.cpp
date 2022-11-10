@@ -82,7 +82,7 @@ void enable_spi_peripheral(uint8_t peripheral_number)
   digitalWrite(CS_2_GPIO_PIN, LOW);
  }
 
- delay(1);  // Alow bus to 'settle'.
+ vTaskDelay(1 / portTICK_PERIOD_MS);  // Alow bus to 'settle'.
 }
 
 //
@@ -139,6 +139,6 @@ void spi_txn(uint8_t peripheral_number, uint16_t data_len)
     hspi->endTransaction();
     spi_buf[7501] = DEVICE_NAME;
     spi_buf[7502] = peripheral_number;
-    delay(1000);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
  }
 }

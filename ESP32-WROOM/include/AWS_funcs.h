@@ -46,6 +46,17 @@ extern const char *AWS_IOT_SUBSCRIBE_TOPIC;
     */
     void getSPIFFS();
 #endif
+
+/* 
+     
+    Input: N/A
+    Output: N/A
+    Return: N/A  
+    Action: Checks MQTT broker and calls the call back function
+
+*/
+void checkMQTT(void);
+
 /* 
      
     Input: 
