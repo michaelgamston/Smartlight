@@ -7,23 +7,25 @@ Two platformio projects:
 
 -ESP32-CAM 
 
--ESP32-WROOM
+-ESP32-WROVER LILYGO
 
 Both projects are using the Ardunio Framework. These files will contain our functionality for the MVP. 
 
 ## Serial Comms Wiring
 
-| WROOM pin| AI thinker pin | Purpose |
-| -------- | -------------- | ------- |
-| GPIO2/5  | GPIO15         | CS      |
-| GPIO14   | GPIO14         | SCLK    |
-| GPIO13   | GPIO13         | COPI    |
-| GPIO12   | GPIO12         | CIPO    |
+| LILYGO pin | AI thinker pin | Purpose |
+| ---------- | -------------- | ------- |
+| GPIO15/13  | GPIO15         | CS      |
+| GPIO18     | GPIO14         | SCLK    |
+| GPIO23     | GPIO13         | COPI    |
+| GPIO19     | GPIO12         | CIPO    |
 
 # ESP32-CAM
 
 Functional MVP code. Sends image in byte array with check byte at position one using SPI. Ready for deloyment. 
 
-# ESP32-WROOM
+# ESP32-WROVER LILYGO
 
-Recieves image from CAM and then adds ID info to byte array before sending to AWS. DALI functionality still in progress.
+Recieves image from CAM and then adds ID info to byte array before sending to AWS.
+Has local wifi mesh capabilities, can send and receive messages to and from the mesh.
+DALI functionality still in progress.
