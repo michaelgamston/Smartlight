@@ -24,6 +24,7 @@ Branch - main
 #include "MySPIFFS.h"
 //#include <FreeRTOS.h>
 #include <SoftwareSerial.h>
+#include "mesh.h"
 
 #define PIN_TX              27
 #define PIN_RX              26
@@ -41,13 +42,24 @@ void sendDALIactivation(void* parameters){
   while(1){
 
     softSerial.write(activationBit);
-    Serial.println(activationBit);
+    //Serial.println(activationBit);
 
     vTaskDelay(1 / portTICK_PERIOD_MS);
     
   }
 }
 
+void SPItransfer(void* parameters){
+  while(1){
+    for (int i = 1; i <= 2; i++){
+    spi_txn(i, 8192);
+    send_image(spi_buf, SPI_BUFFER_SIZE);
+    set_buf();
+    //Serial.println("looped");
+    vTaskDelay(2000/ portTICK_PERIOD_MS);
+  }
+  }
+}
 
 void setup()
 {
@@ -64,6 +76,8 @@ void setup()
   connectAWS();
  
   init_spi();
+  
+  mesh_init();
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 
@@ -77,17 +91,26 @@ void setup()
 		1
   );
 
+  xTaskCreatePinnedToCore(
+  SPItransfer,
+  "SPI",
+  1000000,
+  NULL,
+  1,
+  NULL,
+  0
+  );
+
+ 
+
   //Delete Setup and loop tasks once created 
 }
 
 void loop()
 {
-  for (int i = 1; i <= 2; i++){
-    spi_txn(i, 8192);
-    send_image(spi_buf, SPI_BUFFER_SIZE);
-    set_buf();
-    //Serial.println("looped");
-  }
+  
   checkMQTT();
-  vTaskDelay(2000 / portTICK_PERIOD_MS);
+  mesh_update();
+
+  
 }
