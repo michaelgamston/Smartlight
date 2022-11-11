@@ -107,7 +107,6 @@ void mainSmartlightLoop(void* parameters);
   const int potPin = 15;        // Pin the pot is connected to
   const int activationPin = GPIO_NUM_14;
   static bool activateClause = false; 
-  static SemaphoreHandle_t mutex;
 
 #endif
 
@@ -580,6 +579,7 @@ void mainSmartlightLoop(void* parameters){
 			u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
 			printf("activated in main loop\n");
 		}//else u8CubikControl_DaliLight_SetLevel(0);
+		else u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
 		SMT_Cubik_delay_function(MAIN_LOOP_PAUSE_TIME);
 	}
 	
@@ -615,7 +615,7 @@ void app_main(void)
 //   u8CubikControl_BT_SetDeviceEnable(CA_STATUS_ENABLE);
 //   u8CubikControl_BT_SetBroadcastStatus(CA_MY_STATUS_SLEEPING, 0U, 0U);
 //   u8CubikControl_BT_SetBroadcastEnable(CA_STATUS_ENABLE);
-	mutex = xSemaphoreCreateMutex();
+	
     
 	xTaskCreatePinnedToCore(
 		activateInterrupt,

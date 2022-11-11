@@ -110,6 +110,14 @@ extern void spi_txn(uint8_t peripheral_number, uint16_t data_len);
 }
 #endif
 
+//     Input: N/A
+//     Output: N/A
+//     Return: boolean  
+//     Action: 
+//         - checks the activationByte and return true/false depending on value
+//     Comments: N/A
+bool checkActivationByte();
+
 // Global Variables.
 
 extern uint8_t spi_buf[SPI_BUFFER_SIZE];

@@ -1,7 +1,9 @@
 #include "mesh.h"
+#include "queue.h"
 
 Scheduler userScheduler; // to control your personal task
 painlessMesh  mesh;
+static char buffer[50];
 
 Task taskSendMessage( TASK_SECOND * 1 , TASK_FOREVER, &sendMessage );
 
@@ -14,11 +16,12 @@ void sendMessage() {
 
 // Needed for painless library
 void receivedCallback( uint32_t from, String &msg ) {
-  Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
+  queueMessage(("startHere: Received from %u msg=%s\n", from, msg.c_str()));
 }
 
 void newConnectionCallback(uint32_t nodeId) {
-  Serial.printf("--> startHere: New Connection, nodeId = %u\n", nodeId);
+  sprintf(buffer, "--> startHere: New Connection, nodeId = %u\n", nodeId);
+  queueMessage(buffer);
 }
 
 void recursiveJsonArrayExtractor(JsonArray arr, uint32_t depth = 1) {
@@ -28,46 +31,48 @@ void recursiveJsonArrayExtractor(JsonArray arr, uint32_t depth = 1) {
     obj = arr[i].as<JsonObject>();
     for(JsonPair p : obj) {
       for(uint32_t j = 1; j <= depth; j++)
-        Serial.print("| ");
-      Serial.print(p.key().c_str());
-      Serial.print(" ");
+        queueMessage("| ");
+      queueMessage(p.key().c_str());
+      queueMessage(" ");
       if(strstr(p.key().c_str(), "subs")) 
-        Serial.print("\n");
+        queueMessage("\n");
       if(p.value().is<JsonArray>())
         recursiveJsonArrayExtractor(p.value().as<JsonArray>(), depth + 1);
       else
-        Serial.println(p.value().as<String>());
+        queueMessage(p.value().as<String>().c_str());
     }
   }
 }
 
 void changedConnectionCallback() {
-  Serial.printf("Changed connections\n");
+  queueMessage("Changed connections\n");
   StaticJsonDocument<2500> doc;
   String form = mesh.subConnectionJson();
   deserializeJson(doc, form);
   JsonObject obj = doc.as<JsonObject>();
-  //Serial.println(doc.as<String>());
+  //queueMessageln(doc.as<String>());
   for(JsonPair p : obj) {
-    Serial.print(p.key().c_str());
-    Serial.print(" ");
+    queueMessage(p.key().c_str());
+    queueMessage(" ");
     if(strstr(p.key().c_str(), "subs")) 
-      Serial.print("\n");
+      queueMessage("\n");
     if(p.value().is<JsonArray>()) {
       JsonArray arr = p.value().as<JsonArray>();
       recursiveJsonArrayExtractor(arr);
     }
     else
-      Serial.println(p.value().as<String>());
+      queueMessage(p.value().as<String>().c_str());
   }
 }
 
 void nodeTimeAdjustedCallback(int32_t offset) {
-  Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset);
+  sprintf(buffer, "Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset);
+  queueMessage(buffer);
 }
 
 void droppedConnectionCallback(uint32_t nodeId) {
-  Serial.printf("Connection dropped, nodeId %u \n", nodeId);
+  sprintf(buffer, "Connection dropped, nodeId %u \n", nodeId);
+  queueMessage(buffer);
 }
 
 void mesh_init() {

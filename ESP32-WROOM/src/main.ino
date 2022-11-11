@@ -25,6 +25,7 @@ Branch - main
 //#include <FreeRTOS.h>
 #include <SoftwareSerial.h>
 #include "mesh.h"
+#include "queue.h"
 
 #define PIN_TX              27
 #define PIN_RX              26
@@ -35,30 +36,48 @@ const byte txPin = 32;
 
 static const int DALIActivationPin = GPIO_NUM_5;
 static int activationBit = 0b0;
+static int previousBit = activationBit;
+
+static SemaphoreHandle_t mutex; 
 
 SoftwareSerial softSerial (rxPin, txPin);
 
 void sendDALIactivation(void* parameters){
   while(1){
-
+    xSemaphoreTake(mutex, portMAX_DELAY);
     softSerial.write(activationBit);
-    //Serial.println(activationBit);
-
+    xSemaphoreGive(mutex);
     vTaskDelay(1 / portTICK_PERIOD_MS);
-    
   }
 }
 
 void SPItransfer(void* parameters){
   while(1){
     for (int i = 1; i <= 2; i++){
-    spi_txn(i, 8192);
-    send_image(spi_buf, SPI_BUFFER_SIZE);
-    set_buf();
-    //Serial.println("looped");
-    vTaskDelay(2000/ portTICK_PERIOD_MS);
+      spi_txn(i, 8192);
+      send_image(spi_buf, SPI_BUFFER_SIZE);
+      set_buf();
+      //Serial.println("looped");
+      vTaskDelay(2000/ portTICK_PERIOD_MS);
+    }
   }
+}
+
+void prepareActivationBit()
+{
+  if(checkActivationByte() && (previousBit != activationBit)){
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    previousBit = activationBit;
+    activationBit = 0b0;
+    xSemaphoreGive(mutex);
   }
+  else if (~checkActivationByte() && (previousBit != activationBit)){
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    previousBit = activationBit;
+    activationBit = 0b1;
+    xSemaphoreGive(mutex);
+  }
+
 }
 
 void setup()
@@ -81,6 +100,9 @@ void setup()
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 
+
+  mutex = xSemaphoreCreateMutex();
+
   xTaskCreatePinnedToCore(
 		sendDALIactivation,
 		"activate DALI",
@@ -100,12 +122,24 @@ void setup()
     NULL,
     0
   );
+
+  xTaskCreatePinnedToCore(
+    queueCallback,
+    "print queue",
+    5240,
+    NULL,
+    1,
+    NULL,
+    0
+  );
+
   
   //Delete Setup and loop tasks once created 
 }
 
 void loop()
 {
+  prepareActivationBit();
   checkMQTT();
   mesh_update();
 }

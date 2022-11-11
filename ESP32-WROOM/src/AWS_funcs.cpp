@@ -17,11 +17,14 @@ Branch - main
 #include "connect.h"
 #include "OTA.h"
 #include "MySPIFFS.h"
+#include "queue.h"
 //#define USE_WIFI
 //topics 
 const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "FiPy/images";
 const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
 const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
+
+static char buffer[50];
 
 #ifdef SPIFFSdef
   //SPIFFS credentials
@@ -67,8 +70,8 @@ void checkMQTT(void){
 void messageHandler(char* topic, byte* payload, unsigned int length)
 {
   const char* url;
-  Serial.print("Incoming from topic: ");
-  Serial.println(topic);
+  queueMessage("Incoming from topic: ");
+  queueMessage(topic);
   StaticJsonDocument<200> doc;
   deserializeJson(doc, payload);
   int instruction = doc["instruction"];
@@ -77,12 +80,11 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
   switch(instruction){
       // incoming message 
     case 1: 
-      Serial.printf(doc["message"]);
-      Serial.println();
+      queueMessage(doc["message"]);
       break;
       // OTA update instrucion
     case 2:
-      Serial.println("OTA update incoming");    
+      queueMessage("OTA update incoming");    
       //runOTA(doc["url"]);
       break;
   }
@@ -93,7 +95,7 @@ void send_image(uint8_t *im, size_t size)
   client->beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false);
   client->write(im, size);
   client->endPublish();
-  Serial.println("IMAGE PUBLISHED");
+  queueMessage("IMAGE PUBLISHED");
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 } 
 
@@ -107,7 +109,7 @@ void send_params()
   char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
   serializeJson(doc, jsonBuffer); // print to client
   client->publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
-  Serial.println("PARAMS PUBLISHED");
+  queueMessage("PARAMS PUBLISHED");
 }
 
 #ifdef USE_WIFI
@@ -121,13 +123,13 @@ bool connectAWS()
   //pass wifi credentails for connection
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  Serial.println("CONNECTING TO Wi-Fi");
+  queueMessage("CONNECTING TO Wi-Fi");
 
   // while wifi isnt connected print message and wait for connection before moving on 
   while (WiFi.status() != WL_CONNECTED)
   {
     vTaskDelay(500 / portTICK_PERIOD_MS);
-    Serial.print(".");
+    queueMessage(".");
   }
 
 #ifdef SPIFFSdef
@@ -136,33 +138,33 @@ bool connectAWS()
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
-  Serial.println("CA set");
+  queueMessage("CA set");
   net.setCertificate(AWS_CERT_CRT);
-  Serial.println("CRT set");
+  queueMessage("CRT set");
   net.setPrivateKey(AWS_CERT_PRIVATE);
-  Serial.println("Priv key set");
+  queueMessage("Priv key set");
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
   // Create a message handler
 
-  Serial.println("CONNECTING TO AWS IOT");
+  queueMessage("CONNECTING TO AWS IOT");
 
   while (!client->connect(THINGNAME))
   {
-    Serial.print(".");
+    queueMessage(".");
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 
   if (!client->connected())
   {
-    Serial.println("AWS IoT TIMEOUT!");
+    queueMessage("AWS IoT TIMEOUT!");
     return false;
   }
 
   // Subscribe to a topic
   client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
-  Serial.println("AWS IoT TOPIC SUBSCRIBED");
+  queueMessage("AWS IoT TOPIC SUBSCRIBED");
   return true;
 }
 
@@ -172,7 +174,7 @@ bool connectAWS()
 // The time of active low level impulse of PWRKEY pin to power on module 500 ms
 void modemPowerOn()
 {
-  Serial.println("powering ON modem");
+  queueMessage("powering ON modem");
   pinMode(PWR_PIN, OUTPUT);
   digitalWrite(PWR_PIN, LOW);
   vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -181,7 +183,7 @@ void modemPowerOn()
 
 bool LTE_connect()
 {
-    Serial.println("Initializing modem ...");
+    queueMessage("Initializing modem ...");
 
     // POWER_PIN : This pin controls the power supply of the SIM7600
     pinMode(POWER_PIN, OUTPUT);
@@ -204,52 +206,52 @@ bool LTE_connect()
             }
 
             vTaskDelay(500 / portTICK_PERIOD_MS);
-            Serial.println("waiting modem to start up");
+            queueMessage("waiting modem to start up");
         }
 
         if(i < 100)
         {
-            Serial.print("modem is up in ");
-            Serial.print(i*500);
-            Serial.println("ms");
+            queueMessage("modem is up");
             break;
         }
     }
 
     vTaskDelay(2000 / portTICK_PERIOD_MS);
-    Serial.println("Setting modem Baud rate");
+    queueMessage("Setting modem Baud rate");
     modem.setBaud(MODEM_UART_BAUD);
-    String modemInfo = modem.getModemInfo();
-    Serial.print("Modem info: ");
-    Serial.println(modemInfo);
+    sprintf(buffer, "Modem info: %s", modem.getModemInfo());
+    queueMessage(buffer);
 
-    Serial.print("SIM status: ");
-    Serial.println(modem.getSimStatus());
+    /*COULDNT CONVERT RETURN TYPE OF .getSimStatus FOR QUEUE FUNCTION */
+    // queueMessage("SIM status: ");
+    // String modemSimStatus = modem.getSimStatus()
+    // queueMessage((modem.getSimStatus()).c_str());
 
-    Serial.println("Connecting to network");
+    queueMessage("Connecting to network");
     if (!modem.waitForNetwork()) {
-        Serial.println("network failed to connect");
+        queueMessage("network failed to connect");
         vTaskDelay(1000 / portTICK_PERIOD_MS);
         return false;
     }
     else if (modem.isNetworkConnected()) {
-        Serial.println("network connected");
+        queueMessage("network connected");
     }
 
-    Serial.println("Connecting GPRS..");
+    queueMessage("Connecting GPRS..");
     modem.gprsConnect("everywhere", "eesecure", "secure");
     if (modem.isGprsConnected()) { 
-        Serial.println("GPRS connected");
+        queueMessage("GPRS connected");
     }
     else
-        Serial.println("GPRS not connected");
+        queueMessage("GPRS not connected");
 
-    Serial.println("Getting signal Strength");
-    int signalQuality = modem.getSignalQuality();
-    Serial.print("Signal quality: ");
-    Serial.println(signalQuality);
+    queueMessage("Getting signal Strength");
+    char signalQuality = modem.getSignalQuality();
+    /*couldnt use queueMessage here as I can't transfer int */
 
-    //if (http_test()) Serial.println("http successful");
+    sprintf(buffer, "Signal quality: %c", signalQuality);
+    queueMessage(buffer);
+    //if (http_test()) queueMessage("http successful");
 
     return true;
 }
@@ -266,25 +268,25 @@ bool connectAWS()
         LTE_secureClient.setCACert(AWS_CERT_CA.c_str());
         LTE_secureClient.setCertificate(AWS_CERT_CRT.c_str());
         LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE.c_str());
-        Serial.print("Certs set");
+        queueMessage("Certs set");
         for(int i=0; i<10; i++)
         {
              if(client->connect(THINGNAME.c_str()))
             {
                 client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-                Serial.println("CONNECTED AWS IOT");
+                queueMessage("CONNECTED AWS IOT");
                 return true;
             }
             else
             {
-                Serial.print(".");
+                queueMessage(".");
                 vTaskDelay(100 / portTICK_PERIOD_MS);
             }
         }
     }
     else
     {
-        Serial.println("Already connected to AWS IOT");
+        queueMessage("Already connected to AWS IOT");
         return true;
     }
 
@@ -298,11 +300,11 @@ bool LTE_publish(const char *message)
     {
         if(client->publish(AWS_IOT_PUBLISH_TOPIC, message))
         {
-            Serial.println("Publish OK");
+            queueMessage("Publish OK");
             return true;
         }
 
-        Serial.println("Publish failed");
+        queueMessage("Publish failed");
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 

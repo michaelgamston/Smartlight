@@ -1,3 +1,5 @@
+#pragma once
+
 #include "painlessMesh.h"
 
 #define   MESH_PREFIX     "whateverYouLike"

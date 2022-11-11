@@ -20,25 +20,34 @@ Branch - main
 #include <Arduino.h>
 #include "camera_funcs.h"
 #include "serial_comms.h"
-#include "SMT_Cubik_API_Data_Types.h"
+
 
 // timing variables
 unsigned long start;
 unsigned long end;
 const uint32_t IMAGE_SIZE = H * W;
+static const int LED = 4;
 
+static uint8_t longFlash = 500;
+static uint8_t shortFlash = 100;
+
+
+void flashLED(uint8_t flashLength){
+  digitalWrite(LED, HIGH);
+  delay(flashLength);
+  digitalWirte(LED, LOW);
+}
 
 void setup()
 {
   Serial.begin(115200);
-  pinMode(4, OUTPUT);
+  pinMode(LED, OUTPUT);
+  digitalWirte(LED, LOW);
   setup_spi();
   setup_camera(FRAME_SIZE);
   // Neural network object
   Serial.println("setup");
 
-  u8CubikControl_DaliLight_Init(CA_REQUEST_IFACE_ENABLE, 0U, 0U);
-  u8CubikControl_DaliLight_SetLevel(0);
 }
 
 void loop()
@@ -52,14 +61,11 @@ void loop()
   if (motion_detect())
   {
     Serial.println("Motion detected");
-    u8CubikControl_DaliLight_SetLevel(100);
-    digitalWrite(4, HIGH);
-    
+    flashLED(shortFlash);
+    addActivationByte();
+    if(send_image()) flashLED(longFlash);
   }
-  send_image();
-  Serial.println(digitalRead(15));
-  end = millis();
-  Serial.printf("Took %d ms\n", end-start);
+  
   delay(2000);
-  digitalWrite(4, HIGH);
+
 }
