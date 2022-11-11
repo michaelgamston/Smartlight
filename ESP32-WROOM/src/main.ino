@@ -92,25 +92,20 @@ void setup()
   );
 
   xTaskCreatePinnedToCore(
-  SPItransfer,
-  "SPI",
-  1000000,
-  NULL,
-  1,
-  NULL,
-  0
+    SPItransfer,
+    "SPI",
+    1000000,
+    NULL,
+    1,
+    NULL,
+    0
   );
-
- 
-
+  
   //Delete Setup and loop tasks once created 
 }
 
 void loop()
 {
-  
   checkMQTT();
   mesh_update();
-
-  
 }
