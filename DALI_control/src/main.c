@@ -575,11 +575,15 @@ void activateInterrupt(void* parameters){
 void mainSmartlightLoop(void* parameters){
 	while(1){
 		if(activateClause == TRUE){
-			//u8CubikControl_DaliLight_SetLevel(100);
 			u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
+			Process_Trigger_Status(TRUE);
 			printf("activated in main loop\n");
-		}//else u8CubikControl_DaliLight_SetLevel(0);
-		else u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
+		}
+		else {
+			u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
+			Process_Trigger_Status(FALSE);
+			}
+
 		SMT_Cubik_delay_function(MAIN_LOOP_PAUSE_TIME);
 	}
 	
