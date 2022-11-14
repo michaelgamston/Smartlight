@@ -41,6 +41,28 @@ void setup_spi();
 
 /*
     Input: N/A
+    Outout: N/A
+    Return: N/A  
+    Action: 
+        - add activation byte to the second element of the buffer
+    Comments: N/A
+
+*/
+void addActivationByte();
+
+/*
+    Input: N/A
+    Outout: N/A
+    Return: N/A  
+    Action: 
+        - resets activation byte to 0 
+    Comments: N/A
+
+*/
+void deactivateByte();
+
+/*
+    Input: N/A
     Outout: Calls setup_spi  
     Return: N/A  
     Action: 
@@ -60,4 +82,6 @@ void copy_to_buffer();
     Comments: N/A
 
 */
-void send_image();
+bool send_image();
+
+
