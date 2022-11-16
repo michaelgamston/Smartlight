@@ -96,7 +96,9 @@
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-timer.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-bt.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-psram.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-rgb-led.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-cpu.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/variants/esp32/pins_arduino.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/include/hal/gpio_hal.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/hal/esp32/include/hal/gpio_ll.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/soc/esp32/include/soc/rtc_cntl_reg.h \

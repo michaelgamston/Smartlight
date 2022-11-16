@@ -17,11 +17,12 @@ Branch - main
 #include "connect.h"
 #include "OTA.h"
 #include "MySPIFFS.h"
+#include "daliSend.h"
 //#define USE_WIFI
 //topics 
-const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "FiPy/images";
-const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "FiPy/params";
-const char *AWS_IOT_SUBSCRIBE_TOPIC = "OTA/updates";
+const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "TestTX";
+const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
+const char *AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
 
 #ifdef SPIFFSdef
   //SPIFFS credentials
@@ -73,17 +74,14 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
   deserializeJson(doc, payload);
   int instruction = doc["instruction"];
 
-
   switch(instruction){
       // incoming message 
     case 1: 
       Serial.printf(doc["message"]);
-      Serial.println();
       break;
       // OTA update instrucion
     case 2:
-      Serial.println("OTA update incoming");    
-      //runOTA(doc["url"]);
+      daliSend(doc["LightLevel"]);
       break;
   }
 }

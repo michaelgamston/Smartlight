@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLEClient.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEClient.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/bt/include/esp32/include/esp_bt.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_common/include/esp_err.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_common/include/esp_compiler.h \

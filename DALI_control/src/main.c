@@ -54,6 +54,8 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
+#include <driver/uart.h>
+#include <driver/gpio.h>
 
 
 // Enable this for the master device (that can set the light levels)
@@ -81,9 +83,12 @@ void Process_Trigger_Status(bool bLocallyTriggered);
 /* Output version information at startup */
 void vDumpVersionInformation(void);
 
-void activateInterrupt(void* parameters);
+void UART(void* parameters);
 
 void mainSmartlightLoop(void* parameters);
+
+void blink(uint8_t lightLevel);
+
 /*Smartlights functions for reading trigger pin level and activating the Light*/
 //void smartlightDigitalTrigger(int pinNum);
 
@@ -99,17 +104,32 @@ void mainSmartlightLoop(void* parameters);
 
 #else
 //  const int OnboardLedPin = 33; // This is supposed to be the Red Led on the bottom
-  const int OnboardLedPin = 4;  // This is (VERY BRIGHT) white LED on the top (the Flash)
+  	const int OnboardLedPin = 4;  // This is (VERY BRIGHT) white LED on the top (the Flash)
 // My dev board
 //  const int buttonPin = 14;     // the number of the pushbutton pin
 // The SMT prototype board - Iss2
-  const int buttonPin = 16;     // the number of the pushbutton pin
-  const int potPin = 15;        // Pin the pot is connected to
-  const int activationPin = GPIO_NUM_14;
-  static bool activateClause = false; 
-  static SemaphoreHandle_t mutex;
+	const int buttonPin = 16;     // the number of the pushbutton pin
+	const int potPin = 15;        // Pin the pot is connected to
+	const int activationPin = GPIO_NUM_14;
+	static bool activateClause = false; 
 
+	uint8_t newLightLevel = 0U;
+	uint8_t prevLightLevel = 0U;
+	int uart_buffer_size = 1024;
+	QueueHandle_t uart_queue;
+	uint8_t *data;
+
+	const uart_port_t uart_num = UART_NUM_0;
+	uart_config_t uart_config = {
+		.baud_rate = 115200,
+		.data_bits = UART_DATA_8_BITS,
+		.parity = UART_PARITY_DISABLE,
+		.stop_bits = UART_STOP_BITS_1,
+		.flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+		.rx_flow_ctrl_thresh = 122,
+	};
 #endif
+
 
 
 // void smartlightDigitalTrigger(int pinNum){
@@ -558,29 +578,40 @@ void vDumpVersionInformation(void)
 	}
 }
 
-//variables on line 106 
-void activateInterrupt(void* parameters){
-	while(1){
-		if (gpio_get_level(GPIO_NUM_14) == 0b0){			
-			activateClause = TRUE;
-			printf("gpio level == 0b0\n");
-		}
-		else {
-			activateClause = FALSE;
-		}
+void blink(uint8_t lightLevel){
+	uint8_t blinks = (lightLevel / 10U);
+	if(blinks < 1) blinks = 1;
+	for(blinks; blinks != 0U; blinks--){
+		u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
+		SMT_Cubik_delay_function(50);
+		u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
+		SMT_Cubik_delay_function(50);
+	}
+}
 
-		SMT_Cubik_delay_function(1);// to avoid watchdog
+//variables on line 106 
+void UART(void* parameters){
+	data = (uint8_t *) malloc(uart_buffer_size);
+	uart_driver_install(UART_NUM_0, uart_buffer_size, 0, 10, &uart_queue, 0);
+    uart_param_config(uart_num, &uart_config);
+    uart_set_pin(UART_NUM_0, 1, 3, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	while(1){
+		int len = uart_read_bytes(UART_NUM_0, data, uart_buffer_size, 20 / portTICK_RATE_MS);
+		if (len > 0 && *data != prevLightLevel){
+			newLightLevel = *data;
+			activateClause = true;
+		}
 	}
 }
 
 void mainSmartlightLoop(void* parameters){
 	while(1){
-		if(activateClause == TRUE){
-			//u8CubikControl_DaliLight_SetLevel(100);
-			u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
-			printf("activated in main loop\n");
-		}//else u8CubikControl_DaliLight_SetLevel(0);
-		SMT_Cubik_delay_function(MAIN_LOOP_PAUSE_TIME);
+		if(activateClause){
+			blink(newLightLevel);
+            u8CubikControl_DaliLight_SetLevel(newLightLevel); 
+			activateClause = false;
+        }
+		SMT_Cubik_delay_function(500);
 	}
 	
 }
@@ -594,7 +625,7 @@ void app_main(void)
 	// Dump out the file version information
 	vDumpVersionInformation();
 
-	// Call our setup function
+	// Call our setup functionSetting
 	Cubik_API_Test_Setup();
 
 	// Do normal configuration and go into main detection/control loop
@@ -608,24 +639,23 @@ void app_main(void)
 #endif
   
   u8CubikControl_GPIO_Pin_Config(OnboardLedPin, CA_PIN_CONFIG_OUTPUT);
-  u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
+  u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
   u8CubikControl_GPIO_Pin_Config(buttonPin, CA_PIN_CONFIG_INPUT);
   u8CubikControl_GPIO_Pin_Config(activationPin, CA_PIN_CONFIG_INPUT);
-//  u8CubikControl_GPIO_Pin_Config(potPin, CA_PIN_CONFIG_ANALOG_INPUT);
-//   u8CubikControl_BT_SetDeviceEnable(CA_STATUS_ENABLE);
-//   u8CubikControl_BT_SetBroadcastStatus(CA_MY_STATUS_SLEEPING, 0U, 0U);
-//   u8CubikControl_BT_SetBroadcastEnable(CA_STATUS_ENABLE);
-	mutex = xSemaphoreCreateMutex();
+
+
+
     
 	xTaskCreatePinnedToCore(
-		activateInterrupt,
-		"pin activation interrupt",
-		1024,
+		UART,
+		"checks incoming messages on UART",
+		2048,
 		NULL,
 		1,
 		NULL,
 		0
 	);
+
 
 	xTaskCreatePinnedToCore(
 		mainSmartlightLoop,
@@ -636,32 +666,10 @@ void app_main(void)
 		NULL,
 		1
 	);
-	// Sleep for 2 seconds - so the BT stack can sort itself out
-	SMT_Cubik_delay_function(2000);
-	
-  // Main loop - simply loop round operations, calling as needed
-// 	for(;;)
-// 	{
-// 	  // Call the test app 'thread'
-// 	  //vMainTestAppThread();
-// 		//smartlightDigitalTrigger(activationPin);
-// 		if(activateClause){
-// 			//u8CubikControl_DaliLight_SetLevel(100);
-// 			printf("activated in main loop\n");
-// 		}//else u8CubikControl_DaliLight_SetLevel(0);
-		
-		
-// 	  // Call the cubik api 'thread'
-// 	  //vCubikControl_Priv_Main();
 
-// #if 0
-//     /* Delay for 1 second, avoid watchdog barrf */
-//     SMT_Cubik_delay_function(1000);
-// #else
-//     /* Delay for 100 ms, avoid watchdog barrf - 1 second is too long, slow response */
-//     SMT_Cubik_delay_function(MAIN_LOOP_PAUSE_TIME);
-// #endif
-// 	}
+	SMT_Cubik_delay_function(2000);
+	u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
+  
 }
 #endif
 

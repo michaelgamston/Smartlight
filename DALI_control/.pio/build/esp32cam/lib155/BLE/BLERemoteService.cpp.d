@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLERemoteService.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLERemoteService.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLERemoteService.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEClient.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/bt/host/bluedroid/api/include/api/esp_gattc_api.h \

@@ -31,7 +31,7 @@ uint8_t* spi_slave_rx_buf;
 const uint8_t ERROR_GPIO_PIN = 2;
 const uint8_t CS_GPIO_PIN = 15;
 bool is_setup = false;
-
+bool is_activated = false;
 
 void setup_spi()
 {
@@ -44,7 +44,7 @@ void setup_spi()
   memset(spi_slave_tx_buf, 0, BUFFER_SIZE);
   memset(spi_slave_rx_buf, 0, BUFFER_SIZE);
   spi_slave_tx_buf[0] = 5; // set checkbyte to 5
-  spi_slave_tx_buf[1] = 0;
+  spi_slave_tx_buf[8191] = 0;
   // slave device configuration
   slave.setDataMode(SPI_MODE0);
   slave.setMaxTransferSize(BUFFER_SIZE);
@@ -55,21 +55,21 @@ void setup_spi()
 }
 
 void addActivationByte(){
-  spi_slave_tx_buf[1] = 1;
+  is_activated = true;
+  spi_slave_tx_buf[8191] = 1;
 }
 
 void deactivateByte(){
-  spi_slave_tx_buf[1] = 0;
+  spi_slave_tx_buf[8191] = 0;
 }
 
 void copy_to_buffer()
 {
-  deactivateByte();
   if (!is_setup)
   {
     setup_spi();
   }
-  for (int i = 2; i <= IMAGE_SIZE; i++)
+  for (int i = 1; i <= IMAGE_SIZE; i++)
   {
     spi_slave_tx_buf[i] = (uint8_t) current_frame[i-1];
 
@@ -87,6 +87,8 @@ bool send_image()
   {
     // this adds buffers to queue 
     slave.queue(spi_slave_rx_buf, spi_slave_tx_buf, BUFFER_SIZE);
+    is_activated = false;
+    deactivateByte();
   }
   // if transaction has completed from master,
   // available() returns size of results of transaction,

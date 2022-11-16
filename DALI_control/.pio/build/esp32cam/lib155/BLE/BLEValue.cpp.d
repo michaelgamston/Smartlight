@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLEValue.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEValue.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEValue.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-log.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_timer/include/esp_timer.h \

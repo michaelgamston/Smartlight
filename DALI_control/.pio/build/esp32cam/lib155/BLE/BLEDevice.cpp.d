@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLEDevice.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEDevice.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/freertos/FreeRTOS.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include/esp_additions/freertos/FreeRTOSConfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_common/include/esp_compiler.h \
@@ -126,6 +126,7 @@
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-matrix.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-uart.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-gpio.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/variants/esp32/pins_arduino.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-touch.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h \
@@ -140,5 +141,6 @@
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-timer.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-bt.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-psram.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-rgb-led.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-cpu.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-log.h

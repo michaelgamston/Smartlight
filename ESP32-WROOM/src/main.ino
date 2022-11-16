@@ -20,34 +20,14 @@ Branch - main
 #include "spi_comms.h"
 #include "AWS_funcs.h"
 #include <Arduino.h>
-#include "dali.h"
 #include "MySPIFFS.h"
-//#include <FreeRTOS.h>
-#include <SoftwareSerial.h>
 #include "mesh.h"
+#include "daliSend.h"
 
 #define PIN_TX              27
 #define PIN_RX              26
 
-const byte rxPin = 33;
-const byte txPin = 32;
 
-
-static const int DALIActivationPin = GPIO_NUM_5;
-static int activationBit = 0b0;
-
-SoftwareSerial softSerial (rxPin, txPin);
-
-void sendDALIactivation(void* parameters){
-  while(1){
-
-    softSerial.write(activationBit);
-    //Serial.println(activationBit);
-
-    vTaskDelay(1 / portTICK_PERIOD_MS);
-    
-  }
-}
 
 void SPItransfer(void* parameters){
   while(1){
@@ -56,8 +36,8 @@ void SPItransfer(void* parameters){
     send_image(spi_buf, SPI_BUFFER_SIZE);
     set_buf();
     //Serial.println("looped");
-    vTaskDelay(2000/ portTICK_PERIOD_MS);
-  }
+    }
+     vTaskDelay(2000/ portTICK_PERIOD_MS);
   }
 }
 
@@ -67,34 +47,18 @@ void setup()
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
 
-  pinMode(DALIActivationPin, OUTPUT);
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
-
-  softSerial.begin(115200);
-
+  daliINIT();
   connectAWS();
- 
   init_spi();
-  
   mesh_init();
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 
-  xTaskCreatePinnedToCore(
-		sendDALIactivation,
-		"activate DALI",
-		1024,
-		NULL,
-		1,
-		NULL,
-		1
-  );
 
   xTaskCreatePinnedToCore(
     SPItransfer,
     "SPI",
-    1000000,
+    10240,
     NULL,
     1,
     NULL,
@@ -106,6 +70,14 @@ void setup()
 
 void loop()
 {
-  checkMQTT();
-  mesh_update();
+
+    checkMQTT();
+//   mesh_update();
+//   for (int i = 1; i <= 2; i++){
+//   spi_txn(i, 8192);
+//   send_image(spi_buf, SPI_BUFFER_SIZE);
+//   set_buf();
+//   //Serial.println("looped");
+//   }
+    vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

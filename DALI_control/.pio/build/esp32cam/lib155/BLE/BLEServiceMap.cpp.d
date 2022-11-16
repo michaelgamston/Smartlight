@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLEServiceMap.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEServiceMap.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEService.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/bt/host/bluedroid/api/include/api/esp_gatts_api.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/bt/host/bluedroid/api/include/api/esp_bt_defs.h \

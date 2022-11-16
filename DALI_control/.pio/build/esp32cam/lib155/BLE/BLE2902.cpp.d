@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLE2902.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLE2902.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLE2902.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEDescriptor.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEUUID.h \

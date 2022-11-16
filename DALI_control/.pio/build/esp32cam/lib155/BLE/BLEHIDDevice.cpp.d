@@ -1,6 +1,6 @@
 .pio/build/esp32cam/lib155/BLE/BLEHIDDevice.cpp.o: \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEHIDDevice.cpp \
- /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/qspi_qspi/include/sdkconfig.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/dio_qspi/include/sdkconfig.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEHIDDevice.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLECharacteristic.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEUUID.h \

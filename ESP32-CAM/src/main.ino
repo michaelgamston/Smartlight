@@ -26,23 +26,22 @@ Branch - main
 unsigned long start;
 unsigned long end;
 const uint32_t IMAGE_SIZE = H * W;
+
+static const int longFlash = 500;
+static const int shortFlash = 100;
 static const int LED = 4;
 
-static uint8_t longFlash = 500;
-static uint8_t shortFlash = 100;
-
-
-void flashLED(uint8_t flashLength){
+void flashLED(int flashLength){
   digitalWrite(LED, HIGH);
   delay(flashLength);
-  digitalWirte(LED, LOW);
+  digitalWrite(LED, LOW);
 }
 
 void setup()
 {
   Serial.begin(115200);
   pinMode(LED, OUTPUT);
-  digitalWirte(LED, LOW);
+  digitalWrite(LED, LOW);
   setup_spi();
   setup_camera(FRAME_SIZE);
   // Neural network object

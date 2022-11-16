@@ -32,13 +32,25 @@ Branch - main
 #define HSPI_SCLK   18
 #define HSPI_SS     5    
 
+
+
 // Function Prototypes.
 
-#ifdef __cplusplus             // Allow for C++ to handle C function prototypes.
-extern "C" {
-#endif
+// #ifdef __cplusplus             // Allow for C++ to handle C function prototypes.
+// extern "C" {
+// #endif
 
+/* 
+     
+    Input: N/A
+    Output:N/A
+    Return: N/A  
+    Action: 
+        -Flashes the LED
+    Comments: N/A
 
+*/
+void flashLED(int flashLength);
 
 /* 
      
@@ -75,7 +87,7 @@ extern void init_spi(void);
     Comments: N/A
 
 */
-extern void enable_spi_peripheral(uint8_t peripheral_number);
+void enable_spi_peripheral(uint8_t peripheral_number);
 
 /* 
      
@@ -87,7 +99,7 @@ extern void enable_spi_peripheral(uint8_t peripheral_number);
     Comments: N/A
 
 */
-extern void disable_spi_peripheral(uint8_t peripheral_number);
+void disable_spi_peripheral(uint8_t peripheral_number);
 
 /* 
      
@@ -104,11 +116,11 @@ extern void disable_spi_peripheral(uint8_t peripheral_number);
     Comments: N/A
 
 */
-extern void spi_txn(uint8_t peripheral_number, uint16_t data_len);
+void spi_txn(uint8_t peripheral_number, uint16_t data_len);
 
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 
 // Global Variables.
 

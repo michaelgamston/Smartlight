@@ -84,6 +84,7 @@
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-matrix.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-uart.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-gpio.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/variants/esp32/pins_arduino.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-touch.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-dac.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/driver/include/driver/gpio.h \
@@ -99,8 +100,8 @@
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-timer.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-bt.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-psram.h \
+ /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-rgb-led.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-cpu.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp8266-compat.h \
  /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/stdlib_noniso.h \
- /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/binary.h \
- /home/michael/.platformio/packages/framework-arduinoespressif32/variants/esp32/pins_arduino.h
+ /home/michael/.platformio/packages/framework-arduinoespressif32/cores/esp32/binary.h
