@@ -6,7 +6,7 @@ Author/s - Michael Gamston - Joe Button
 
 Description - Functions and constants for SPI serial communication between FiPy and esp32-cam. Header file for serial_comms.cpp
 
-Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+Hardware - A0.4
 
 Comments - See .cpp for updated comments
 

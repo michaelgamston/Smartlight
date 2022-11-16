@@ -6,7 +6,7 @@ Author/s - Michael Gamston - Joe Button
 
 Description - Function definitions for connecting the module to WIFI/LTE and AWS 
 
-Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+Hardware - A0.4
 
 Comments - See .cpp for comments 
 

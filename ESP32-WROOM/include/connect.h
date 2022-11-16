@@ -6,7 +6,7 @@ Author/s - Michael Gamston - Joe Button
 
 Description - Contains connection credentials for SIM card and WiFI
 
-Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+Hardware - A0.4
 
 Comments - Whilst we build a prototype AWS certs will stay in here, once launch SPIFFS will be used to store them. 
 

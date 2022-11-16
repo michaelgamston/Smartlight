@@ -6,7 +6,7 @@ Author/s - Michael Gamston
 
 Description - Functions definitions for SPIFFS handling 
 
-Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
+Hardware - A0.4
 
 Comments - Make sure to include secrets.h. No header file for declaring functions, just keeps file handling 
 
