@@ -1,3 +1,22 @@
+/*
+                                                                  *****FILE HEADER*****
+File Name - mesh.cpp
+
+Author/s - Robert Hodorogea
+
+Description - WiFi mesh functions needed for ESP32-LILYGO.
+
+Hardware - A0.3 (ESP32-LIYGO, 2xESP32-CAM)
+
+Comments - 
+
+Libraries - painlessmesh - https://gitlab.com/painlessMesh/painlessMesh
+
+Repo - michaelgamston/MVP
+Branch - main
+
+*/
+
 #include "mesh.h"
 
 Scheduler userScheduler; // to control your personal task
@@ -12,7 +31,6 @@ void sendMessage() {
   taskSendMessage.setInterval( random( TASK_SECOND * 1, TASK_SECOND * 5 ));
 }
 
-// Needed for painless library
 void receivedCallback( uint32_t from, String &msg ) {
   Serial.printf("startHere: Received from %u msg=%s\n", from, msg.c_str());
 }
@@ -41,8 +59,7 @@ void recursiveJsonArrayExtractor(JsonArray arr, uint32_t depth = 1) {
   }
 }
 
-void changedConnectionCallback() {
-  Serial.printf("Changed connections\n");
+void printMeshTree() {
   StaticJsonDocument<2500> doc;
   String form = mesh.subConnectionJson();
   deserializeJson(doc, form);
@@ -62,6 +79,11 @@ void changedConnectionCallback() {
   }
 }
 
+void changedConnectionCallback() {
+  Serial.printf("Changed connections\n");
+  printMeshTree();
+}
+
 void nodeTimeAdjustedCallback(int32_t offset) {
   Serial.printf("Adjusted time %u. Offset = %d\n", mesh.getNodeTime(),offset);
 }
@@ -72,15 +94,17 @@ void droppedConnectionCallback(uint32_t nodeId) {
 
 void mesh_init() {
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
+
   mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT );
+
   mesh.onReceive(&receivedCallback);
   mesh.onNewConnection(&newConnectionCallback);
   mesh.onChangedConnections(&changedConnectionCallback);
   mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
   mesh.onDroppedConnection(&droppedConnectionCallback);
 
-  //mesh.setRoot(true);
-  mesh.setContainsRoot(true);
+  //mesh.setRoot(true); // no more than one node should be set as root/parent node
+  mesh.setContainsRoot(true); // if a root/parent node was set, the rest of the nodes should be aware of it
 
   userScheduler.addTask( taskSendMessage );
   taskSendMessage.enable();
