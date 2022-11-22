@@ -50,7 +50,7 @@ const char* AWS_SET_TIME_TOPIC = "Time";
 
 #ifdef USE_WIFI
   WiFiClientSecure net = WiFiClientSecure();
-  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, messageHandler, net);
+  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, net);
 #else
     #include <TinyGsmClient.h>
     #include <SSLClient.h>
@@ -150,11 +150,11 @@ bool connectAWS()
 #endif
 
   // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA);
+  net.setCACert(AWS_CERT_CA.c_str());
   Serial.println("CA set");
-  net.setCertificate(AWS_CERT_CRT);
+  net.setCertificate(AWS_CERT_CRT.c_str());
   Serial.println("CRT set");
-  net.setPrivateKey(AWS_CERT_PRIVATE);
+  net.setPrivateKey(AWS_CERT_PRIVATE.c_str());
   Serial.println("Priv key set");
 
   // Connect to the MQTT broker on the AWS endpoint we defined earlier
@@ -162,7 +162,7 @@ bool connectAWS()
 
   Serial.println("CONNECTING TO AWS IOT");
 
-  while (!client->connect(THINGNAME))
+  while (!client->connect(THINGNAME.c_str()))
   {
     Serial.print(".");
     vTaskDelay(100 / portTICK_PERIOD_MS);
