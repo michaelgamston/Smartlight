@@ -32,6 +32,7 @@ const uint8_t ERROR_GPIO_PIN = 2;
 const uint8_t CS_GPIO_PIN = 15;
 bool is_setup = false;
 bool is_activated = false;
+//const uint8_t TRP = 2;
 
 void setup_spi()
 {
@@ -40,6 +41,7 @@ void setup_spi()
   spi_slave_rx_buf = slave.allocDMABuffer(BUFFER_SIZE);
   // pins 
   pinMode(CS_GPIO_PIN, INPUT);
+  //pinMode(TRP, OUTPUT);
   // set buffer data...
   memset(spi_slave_tx_buf, 0, BUFFER_SIZE);
   memset(spi_slave_rx_buf, 0, BUFFER_SIZE);
@@ -57,6 +59,7 @@ void setup_spi()
 void addActivationByte(){
   is_activated = true;
   spi_slave_tx_buf[8191] = 1;
+  //digitalWrite(TRP, LOW);
 }
 
 void deactivateByte(){
@@ -100,6 +103,7 @@ bool send_image()
     // do something with received data: spi_slave_rx_buf
     slave.pop();
     Serial.println("transferring");
+    //digitalWrite(TRP, HIGH);
     result = true;
   }
 

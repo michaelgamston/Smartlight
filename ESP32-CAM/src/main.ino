@@ -37,6 +37,10 @@ void flashLED(int flashLength){
   digitalWrite(LED, LOW);
 }
 
+void send(void* parameters){
+  if(send_image()) flashLED(longFlash);
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -62,8 +66,10 @@ void loop()
     Serial.println("Motion detected");
     flashLED(shortFlash);
     addActivationByte();
-    if(send_image()) flashLED(longFlash);
   }
+
+  if(send_image()) flashLED(longFlash);
+  
   
   delay(2000);
 

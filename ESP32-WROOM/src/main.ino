@@ -24,60 +24,39 @@ Branch - main
 #include "mesh.h"
 #include "daliSend.h"
 
+
 #define PIN_TX              27
 #define PIN_RX              26
 
 
 
-void SPItransfer(void* parameters){
-  while(1){
-    for (int i = 1; i <= 2; i++){
-    spi_txn(i, 8192);
-    send_image(spi_buf, SPI_BUFFER_SIZE);
-    set_buf();
-    //Serial.println("looped");
-    }
-     vTaskDelay(2000/ portTICK_PERIOD_MS);
-  }
-}
 
 void setup()
 {
   SPIFFS.begin();
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
+ 
 
-  daliINIT();
+  
+
+  //daliINIT();
   connectAWS();
-  init_spi();
-  mesh_init();
+  //init_spi();
+  //mesh_init();
+  // xTaskCreatePinnedToCore(
+
+  // );
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
-
-
-  xTaskCreatePinnedToCore(
-    SPItransfer,
-    "SPI",
-    10240,
-    NULL,
-    1,
-    NULL,
-    0
-  );
-  
-  //Delete Setup and loop tasks once created 
 }
 
 void loop()
 {
 
-    checkMQTT();
-//   mesh_update();
-//   for (int i = 1; i <= 2; i++){
-//   spi_txn(i, 8192);
-//   send_image(spi_buf, SPI_BUFFER_SIZE);
-//   set_buf();
-//   //Serial.println("looped");
-//   }
-    vTaskDelay(2000/ portTICK_PERIOD_MS);
+  //mesh_update();
+  checkMQTT();
+  //spiLoopPeripheral();
+  
+  vTaskDelay(2000/ portTICK_PERIOD_MS);
 }
