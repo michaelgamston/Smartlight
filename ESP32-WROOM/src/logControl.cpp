@@ -1,3 +1,24 @@
+
+/*
+                                                                  *****FILE HEADER*****
+File Name - logControl.cpp
+
+Author/s - Robert Hodorogea
+
+Description - Functions needed to manage and send log files to AWS.
+
+Hardware - A0.3 (ESP32-LIYGO, 2xESP32-CAM)
+
+Comments - 
+
+Libraries:
+    - arduino - esp32 - FS.h - https://github.com/espressif/arduino-esp32/tree/master/libraries/FS
+    - arduino - esp32 - SPIFFS.h - https://github.com/espressif/arduino-esp32/tree/master/libraries/SPIFFS
+
+Repo - michaelgamston/MVP
+Branch - main
+
+*/
 #include "logControl.h"
 #include "ESPtime.h"
 
