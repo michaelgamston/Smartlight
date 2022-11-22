@@ -18,6 +18,53 @@ Branch - main
 */
 #pragma once
 
+#define ACTIVATE_BY_TIME
+
+//complete development on this feature, use ACTIVATE_BY_TIME
+//#define ACTIVATE_BY_MOTION 
+
+#ifdef ACTIVATE_BY_MOTION
+
+/* 
+    
+    Input: N/A
+    Output: N/A
+    Return: N/A  
+    Action: 
+        - RTOS task that checks the status of the flag every 10 seconds 
+        - calls daliSend to either activate or deactivate the lamp based on the flag 
+    Comments: N/A
+
+*/
+void checkActivationFlag(void* parameters);
+
+/* 
+    
+    Input: bool status
+    Output: N/A
+    Return: N/A  
+    Action: 
+        - changes the status of the dali activation flag
+    Comments: N/A
+
+*/
+void daliChangeFlagStatus(bool status);
+
+#endif
+
+#ifdef ACTIVATE_BY_TIME
+/* 
+    
+    Input: N/A
+    Output: calls daliSend to either activate or deactivate the light
+    Return: N/A  
+    Action: 
+        - looks at what the time is, and compares it to hardcoded activation or deactivate times
+    Comments: N/A
+
+*/
+void checkTime(void* parameters);
+#endif
 /* 
     
     Input: N/A

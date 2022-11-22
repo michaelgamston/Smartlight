@@ -18,11 +18,18 @@ Branch - main
 #include "OTA.h"
 #include "MySPIFFS.h"
 #include "daliSend.h"
+#include "ESPtime.h"
+
+
 //#define USE_WIFI
 //topics 
-const char *AWS_IOT_PUBLISH_IMAGES_TOPIC = "TestTX";
-const char *AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
-const char *AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
+const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "TestTX";
+const char* AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
+const char* AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
+const char* AWS_SET_TIME_TOPIC = "Time";
+
+//3600 sec offset due to dailight savings
+
 
 #ifdef SPIFFSdef
   //SPIFFS credentials
@@ -72,18 +79,28 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
   Serial.println(topic);
   StaticJsonDocument<200> doc;
   deserializeJson(doc, payload);
-  int instruction = doc["instruction"];
 
-  switch(instruction){
-      // incoming message 
-    case 1: 
-      Serial.printf(doc["message"]);
+    int instruction = doc["instruction"];
+    switch(instruction){
+        // incoming message 
+      case 1: 
+        Serial.printf(doc["message"]);
+        break;
+        // OTA update instrucion
+      case 2:
+        daliSend(doc["LightLevel"]);
+        break;
+      case 3:
+        // With this line here, it wont let me assign a struct from json to variable 'time' 
+        struct tm timeinfo;
+        strptime(doc["time"], "%FT%TZ", &timeinfo);
+        ESPtime.setTimeStruct(timeinfo);
+        Serial.print("Time has been set to: ");
+        //should  be8:34:20 1/4/2021
+        Serial.println(ESPtime.getDateTime());
+        break;
       break;
-      // OTA update instrucion
-    case 2:
-      daliSend(doc["LightLevel"]);
-      break;
-  }
+    }
 }
 
 void send_image(uint8_t *im, size_t size) 
@@ -270,6 +287,7 @@ bool connectAWS()
              if(client->connect(THINGNAME.c_str()))
             {
                 client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+                client->subscribe(AWS_SET_TIME_TOPIC);
                 Serial.println("CONNECTED AWS IOT");
                 return true;
             }

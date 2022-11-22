@@ -56,6 +56,8 @@
 #include <freertos/semphr.h>
 #include <driver/uart.h>
 #include <driver/gpio.h>
+#include <math.h>
+#include <string.h>
 
 
 // Enable this for the master device (that can set the light levels)
@@ -110,8 +112,9 @@ void blink(uint8_t lightLevel);
 // The SMT prototype board - Iss2
 	const int buttonPin = 16;     // the number of the pushbutton pin
 	const int potPin = 15;        // Pin the pot is connected to
-	const int activationPin = GPIO_NUM_14;
 	static bool activateClause = false; 
+
+	static SemaphoreHandle_t mutex;
 
 	uint8_t newLightLevel = 0U;
 	uint8_t prevLightLevel = 0U;
@@ -163,7 +166,7 @@ void vMainTestAppThread(void)
     */      
   
     /* Get the button pressed state // changed so pin is activated by other controller */
-    u8CubikControl_GPIO_Pin_GetDig(activationPin, &u8ButPressed);
+    u8CubikControl_GPIO_Pin_GetDig(potPin, &u8ButPressed);
 
 #ifdef TRIGGER_WITH_RELAY_LOW
     /* Decide what to set the light to  - IR sensor relay is enabled when passive, shorts to ground - relay opens when triggered, internal pullup to HIGH */
@@ -576,19 +579,28 @@ void vDumpVersionInformation(void)
 	{
 		printf("\n\n");
 	}
-}
 
+}
+//will blink a number times depending on input / 10; if input = 0 then will do one long blink
 void blink(uint8_t lightLevel){
-	uint8_t blinks = (lightLevel / 10U);
-	if(blinks < 1) blinks = 1;
+	//changes not uploaded yet
+	uint8_t blinks = lightLevel / 10U;
+	uint8_t time = 50;
+	blinks = round(blinks);
+	if (blinks == 0) {
+		time = 100;
+		blinks = 1;
+	} 
+	printf("blinking %u times \n", blinks);
 	for(blinks; blinks != 0U; blinks--){
 		u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
-		SMT_Cubik_delay_function(50);
+		SMT_Cubik_delay_function(time);
 		u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_OFF);
-		SMT_Cubik_delay_function(50);
+		SMT_Cubik_delay_function(time);
 	}
 }
 
+//breaks when value 100 is sent, only changes light at 70,80,90,100 anything lower just sets it to min, cant turn light off 
 //variables on line 106 
 void UART(void* parameters){
 	data = (uint8_t *) malloc(uart_buffer_size);
@@ -598,22 +610,31 @@ void UART(void* parameters){
 	while(1){
 		int len = uart_read_bytes(UART_NUM_0, data, uart_buffer_size, 20 / portTICK_RATE_MS);
 		if (len > 0 && *data != prevLightLevel){
-			newLightLevel = *data;
+			xSemaphoreTake(mutex, portMAX_DELAY);
+			if(*data < 10U) newLightLevel = 0U;
+			else newLightLevel = *data;
+			blink(newLightLevel);
 			activateClause = true;
+			xSemaphoreGive(mutex);
 		}
+		memset(data, 0, uart_buffer_size);
 	}
 }
 
 void mainSmartlightLoop(void* parameters){
 	while(1){
+		uint8_t val = 0;
 		if(activateClause){
-			blink(newLightLevel);
+			xSemaphoreTake(mutex, portMAX_DELAY);
+			val = (uint8_t)(((uint16_t)newLightLevel * 255U) / 100U);
+			printf("unsigned value should be %u at %u percent \n", val, newLightLevel);
             u8CubikControl_DaliLight_SetLevel(newLightLevel); 
 			activateClause = false;
+			xSemaphoreGive(mutex);
         }
+		
 		SMT_Cubik_delay_function(500);
 	}
-	
 }
 
 #ifdef BUILD_IN_ESPRESSIF
@@ -641,7 +662,8 @@ void app_main(void)
   u8CubikControl_GPIO_Pin_Config(OnboardLedPin, CA_PIN_CONFIG_OUTPUT);
   u8CubikControl_GPIO_Pin_ValueSet(OnboardLedPin, CA_PIN_SET_ON);
   u8CubikControl_GPIO_Pin_Config(buttonPin, CA_PIN_CONFIG_INPUT);
-  u8CubikControl_GPIO_Pin_Config(activationPin, CA_PIN_CONFIG_INPUT);
+
+	mutex = xSemaphoreCreateMutex();
 
 
 

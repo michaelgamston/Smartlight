@@ -118,6 +118,19 @@ void disable_spi_peripheral(uint8_t peripheral_number);
 */
 void spi_txn(uint8_t peripheral_number, uint16_t data_len);
 
+/* 
+     
+    Input: N/A
+    Output: N/A
+    Return: N/A  
+    Action: 
+        - loop over each peripheral and call spi_txn
+        - clear the buffer after each iteration 
+    Comments: N/A
+
+*/
+void spiLoopPeripheral(void);
+
 // #ifdef __cplusplus
 // }
 // #endif

@@ -125,7 +125,7 @@
 /* DALI coomands */
 #define BROADCAST_DP 0b11111110	/* Broadcast address, sends 'set light level' to all devices */
 #define BROADCAST_C  0b11111111 /* Broadcast address, sends 'command following' to all devices */
-#define ON_C 0b00000101         /* Generic command - turn on to max level */
+#define ON_C 0b11110111        /* Generic command - turn on to max level */
 #define OFF_C 0b00000000        /* Generic command - turn off to 0% level */
 #define RESET 0b00100000        /* Generic command - tell device(s) to perform reset */
 #define HALF_BIT_INTERVAL 1666  /* Used in timing calcualtion */
