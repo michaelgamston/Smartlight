@@ -1,6 +1,6 @@
 #include "MySPIFFS.h"
 #include "AWS_funcs.h"
 
-void updateLogFile(const char* DateTimeLevel);
+void updateLogFile(int lightLevel);
 
-void sendToAWS(const char* path);
+void logFileToAWS(const char* path);

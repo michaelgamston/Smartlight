@@ -1,13 +1,22 @@
 #include "daliSend.h"
 #include <SoftwareSerial.h>
-#include <time.h>
+#include "ESPtime.h"
+#include "logControl.h"
 
 static const byte rxPin = 33;
 static const byte txPin = 32;
 
 static SoftwareSerial softSerial (rxPin, txPin);
 
+static const int high = 100;
+static const int low = 20;
+static const int off = 0; 
 static int currentLightLevel = 0;
+
+static const int activationTimeHours = 16;
+static const int activationTimeMins = 0;
+static const int deactivationTimeHours = 8;
+static const int deactivationTimeMins = 0;
 
 #ifdef ACTIVATE_BY_MOTION
 static bool activationFlag = false;
@@ -50,9 +59,23 @@ void daliChangeFlagStatus(bool status){
 #endif
 
 #ifdef ACTIVATE_BY_TIME
-void checkTime(void* parameters){
+void daliTimeActivation(void* parameters){
     //add time comparision, create thread, change currently level, send to dali
-    currentLightLevel = 0U;
+    int hours;
+    int mins;
+    while(1){
+        hours = ESPtime.getHour(true);
+        mins = ESPtime.getMinute();
+        if(hours == activationTimeHours && mins == activationTimeMins){
+            daliSend(high);
+            currentLightLevel = high;
+        }
+        else if(hours == deactivationTimeHours && mins == deactivationTimeMins){
+            daliSend(off);
+            currentLightLevel = off;
+        }
+        vTaskDelay(1/ portTICK_PERIOD_MS);
+    }
 }
 
 #endif
@@ -62,7 +85,7 @@ void daliINIT(void){
     pinMode(txPin, OUTPUT);
     softSerial.begin(115200);
 
-#ifdef ACTIVATE_Y_MOTION
+#ifdef ACTIVATE_BY_MOTION
     mutex = xSemaphoreCreateMutex();
 
     xTaskCreate(
@@ -73,6 +96,16 @@ void daliINIT(void){
         1, 
         NULL
         );
+#endif
+#ifdef ACTIVATE_BY_TIME
+    xTaskCreate( 
+        daliTimeActivation,
+        "checking for light event times",
+        2048,
+        NULL,
+        1,
+        NULL
+    );
 #endif
     Serial.println("dali init complete");
     
@@ -85,6 +118,8 @@ void daliSend(int lightLevel){
     if(lightLevel != currentLightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
+        updateLogFile(lightLevel);
+
         Serial.print("New light level sent: ");
         Serial.println(currentLightLevel);
     }else {
@@ -92,5 +127,6 @@ void daliSend(int lightLevel){
         Serial.print(lightLevel);
         Serial.println(" recieved but not sent");
     }
+
     Serial.println();
 }

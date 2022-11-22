@@ -63,7 +63,7 @@ void daliChangeFlagStatus(bool status);
     Comments: N/A
 
 */
-void checkTime(void* parameters);
+void daliTimeActivation(void* parameters);
 #endif
 /* 
     
