@@ -23,6 +23,7 @@ Branch - main
 #include "ESPtime.h"
 
 static char dateTimeLevelLog[35];
+ESP32Time ESPtime(3600);
 
 void updateLogFile(int lightLevel) {
 
@@ -38,7 +39,7 @@ void updateLogFile(int lightLevel) {
 }
 
 //create a thread for this function to be called every 30 mins
-void logFileToAWS(char* path = "/LogFile.txt") {
+void logFileToAWS(const char* path = "/LogFile.txt") {
     Serial.println("log file sent to aws");
     String contents = fileToString(SPIFFS, path);
     LTE_publish(contents.c_str());

@@ -2,4 +2,4 @@
 
 #include "ESP32Time.h"
 
-ESP32Time ESPtime(3600);
+extern ESP32Time ESPtime;
