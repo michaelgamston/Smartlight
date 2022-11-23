@@ -16,11 +16,11 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
-#include <Arduino.h>
-#include <SPI.h>
+
 #include "spi_comms.h"
 #include "AWS_funcs.h"
 #include "daliSend.h"
+
 SPIClass* hspi = NULL;
 
 uint8_t spi_buf[SPI_BUFFER_SIZE];

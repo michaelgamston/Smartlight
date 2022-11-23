@@ -13,7 +13,6 @@ Repo - michaelgamston/MVP
 Branch - main
 */
 #include "AWS_funcs.h"
-#include <ArduinoJson.h>
 #include "connect.h"
 #include "OTA.h"
 #include "MySPIFFS.h"

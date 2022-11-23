@@ -1,5 +1,4 @@
 #include "daliSend.h"
-#include <SoftwareSerial.h>
 #include "ESPtime.h"
 #include "logControl.h"
 

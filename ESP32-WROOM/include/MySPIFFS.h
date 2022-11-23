@@ -21,8 +21,10 @@ Branch - main
 
 */
 
-#include "FS.h"
-#include "SPIFFS.h"
+#pragma once
+
+#include <FS.h>
+#include <SPIFFS.h>
 
 
 //#define SPIFFSdef

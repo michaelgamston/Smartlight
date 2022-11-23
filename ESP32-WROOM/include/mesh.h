@@ -17,7 +17,9 @@ Branch - main
 
 */
 
-#include "painlessMesh.h"
+#pragma once
+
+#include <painlessMesh.h>
 
 #define   MESH_PREFIX     "whateverYouLike" //name of wifi mesh
 #define   MESH_PASSWORD   "somethingSneaky"

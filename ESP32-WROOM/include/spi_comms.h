@@ -16,6 +16,12 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
+
+#pragma once
+
+#include <Arduino.h>
+#include <SPI.h>
+
 #define DEVICE_NAME 1
 
 #ifndef SPI_COMMS_H

@@ -16,7 +16,10 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
+
 #pragma once
+
+#include <SoftwareSerial.h>
 
 #define ACTIVATE_BY_TIME
 

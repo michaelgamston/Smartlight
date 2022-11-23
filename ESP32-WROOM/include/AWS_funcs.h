@@ -19,11 +19,13 @@ Repo - michaelgamston/MVP
 Branch - main
 
 */
+
 #pragma once
+
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include "Effortless_SPIFFS.h"
-
+#include <Effortless_SPIFFS.h>
+#include <ArduinoJson.h>
 
 extern WiFiClientSecure net;
 
@@ -46,7 +48,6 @@ extern const char *AWS_IOT_SUBSCRIBE_TOPIC;
     */
     void getSPIFFS();
 #endif
-
 
 void checkMQTT(void);
 
