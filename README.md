@@ -1,18 +1,11 @@
 # Comments 
 Remember before launch to #define out any debuging. I.e serial stuff as this won't have function in final MVP product. 
 
-# Instructions for Robert;
-(This can be done on or off the bread board, it might even be better to do it off for now. So long as you can power both units.)
+# Michaels last changes
 
-Please flash the lilygo with the new ESP32-WROOM folder contents
+Changed location of ESPtime defination to its own location 
 
-Please flash TimeControl onto the the unit marked with TC. You will need to change the wifi crednetials to your phones hotspot as the wifi at 
-the engine shed doesn't support encryted MQTT.
-
-Once this is done please power both units up and let me know what the output of the lilygo is.
-
-After the start up of the lilygo and timer of 10 seconds is over on the TC, we should see the time being updated and printed out every 5 seconds or so
-through the lilgo's serial monitor.
+# Roberts last changes
 
 # Structure
 
