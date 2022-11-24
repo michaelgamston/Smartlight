@@ -22,7 +22,7 @@ Branch - main
 #include "logControl.h"
 
 static char dateTimeLevelLog[35];
-ESP32Time ESPtime(3600);
+
 
 void updateLogFile(int lightLevel) {
 
