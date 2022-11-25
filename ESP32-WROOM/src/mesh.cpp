@@ -136,3 +136,9 @@ void mesh_update(void* parameters) {
     vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }
+
+void mesh_stop() {
+  mesh.stop();
+  vTaskDelete(meshUpdater);
+  vTaskDelete(messageBroadcaster);
+}

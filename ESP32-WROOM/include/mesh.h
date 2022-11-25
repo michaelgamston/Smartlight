@@ -118,3 +118,13 @@ void mesh_init();
 
 */
 void mesh_update(void*);
+
+/*
+    Input: N/A
+    Output: N/A
+    Return: N/A  
+    Action: disconnects current node from the mesh network and removes all mesh related tasks
+    Comments: N/A
+
+*/
+void mesh_stop();
