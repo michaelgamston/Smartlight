@@ -21,8 +21,8 @@ Branch - main
 
 painlessMesh  mesh;
 
-static TaskHandle_t* meshUpdater;
-static TaskHandle_t* messageBroadcaster;
+static TaskHandle_t meshUpdater = NULL;
+static TaskHandle_t messageBroadcaster = NULL;
 
 void sendMessage(void* parameters) {
   while(1) {
@@ -114,7 +114,7 @@ void mesh_init() {
     10240,
     NULL,
     1,
-    meshUpdater,
+    &meshUpdater,
     0
   );
 
@@ -124,7 +124,7 @@ void mesh_init() {
     2048,
     NULL,
     1,
-    messageBroadcaster,
+    &messageBroadcaster,
     1
   );
 
@@ -139,6 +139,12 @@ void mesh_update(void* parameters) {
 
 void mesh_stop() {
   mesh.stop();
-  vTaskDelete(meshUpdater);
-  vTaskDelete(messageBroadcaster);
+  if(meshUpdater != NULL) {
+    vTaskDelete(meshUpdater);
+    meshUpdater = NULL;
+  }
+  if(messageBroadcaster != NULL) {
+    vTaskDelete(messageBroadcaster);
+    messageBroadcaster = NULL;
+  }
 }
