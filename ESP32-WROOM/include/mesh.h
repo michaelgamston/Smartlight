@@ -33,7 +33,7 @@ Branch - main
     Action: sends a broadcast message to all mesh nodes, which includes its ID
     Comments: N/A
 */
-void sendMessage();
+void sendMessage(void*);
 
 /*
     Input: uint32_t form, String &msg
@@ -117,4 +117,4 @@ void mesh_init();
     Comments: should be executed at all times in a separate high-priority task
 
 */
-void mesh_update(void);
+void mesh_update(void*);

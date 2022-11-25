@@ -19,16 +19,18 @@ Branch - main
 
 #include "mesh.h"
 
-Scheduler userScheduler; // to control your personal task
 painlessMesh  mesh;
 
-Task taskSendMessage( TASK_SECOND * 1 , TASK_FOREVER, &sendMessage );
+static TaskHandle_t* meshUpdater;
+static TaskHandle_t* messageBroadcaster;
 
-void sendMessage() {
-  String msg = "Hi from node 10 ";
-  msg += mesh.getNodeId();
-  mesh.sendBroadcast( msg );
-  taskSendMessage.setInterval( random( TASK_SECOND * 1, TASK_SECOND * 5 ));
+void sendMessage(void* parameters) {
+  while(1) {
+    String msg = "Hi from node 10 ";
+    msg += mesh.getNodeId();
+    mesh.sendBroadcast( msg );
+    vTaskDelay(3000 / portTICK_PERIOD_MS);
+  }
 }
 
 void receivedCallback( uint32_t from, String &msg ) {
@@ -95,7 +97,7 @@ void droppedConnectionCallback(uint32_t nodeId) {
 void mesh_init() {
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
 
-  mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT );
+  mesh.init( MESH_PREFIX, MESH_PASSWORD, MESH_PORT );
 
   mesh.onReceive(&receivedCallback);
   mesh.onNewConnection(&newConnectionCallback);
@@ -106,10 +108,31 @@ void mesh_init() {
   //mesh.setRoot(true); // no more than one node should be set as root/parent node
   mesh.setContainsRoot(true); // if a root/parent node was set, the rest of the nodes should be aware of it
 
-  userScheduler.addTask( taskSendMessage );
-  taskSendMessage.enable();
+  xTaskCreatePinnedToCore(
+    mesh_update,
+    "Mesh updater",
+    10240,
+    NULL,
+    1,
+    meshUpdater,
+    0
+  );
+
+  xTaskCreatePinnedToCore(
+    sendMessage,
+    "Message sender",
+    2048,
+    NULL,
+    1,
+    messageBroadcaster,
+    1
+  );
+
 }
 
-void mesh_update(void) {
-  mesh.update();
+void mesh_update(void* parameters) {
+  while(1) {
+    mesh.update();
+    vTaskDelay(1 / portTICK_PERIOD_MS);
+  }
 }
