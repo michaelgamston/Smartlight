@@ -20,9 +20,11 @@ Branch - main
 
 */
 #include "logControl.h"
+#include "MySPIFFS.h"
+#include "AWS_funcs.h"
+#include "ESPtime.h"
 
 static char dateTimeLevelLog[35];
-
 
 void updateLogFile(int lightLevel) {
 
