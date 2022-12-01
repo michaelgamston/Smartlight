@@ -53,6 +53,35 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     }
 }
 
+void createFile(fs::FS &fs, const char * path){
+    Serial.printf("Creating file: %s\r\n", path);
+
+    File file = fs.open(path, FILE_WRITE);
+    if(!file){
+        Serial.println("- failed to open file for writing");
+        return;
+    }
+    file.close();
+
+}
+
+bool checkFile(fs::FS &fs, const char* path){
+    Serial.println("Checking file creation");
+    File file = fs.open(path);
+    if(file.isDirectory()){
+        Serial.print("File ");
+        Serial.print(path);
+        Serial.println(" found");
+        return true;
+    }
+    else {
+        Serial.print("File ");
+        Serial.print(path);
+        Serial.println(" not found");
+        return false;
+    }
+}
+
 void readFile(fs::FS &fs, const char * path){
     Serial.printf("Reading file: %s\r\n", path);
 

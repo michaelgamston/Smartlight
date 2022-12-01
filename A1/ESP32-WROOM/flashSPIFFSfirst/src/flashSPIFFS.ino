@@ -21,7 +21,7 @@ Branch - main
 
 */
 
-#include "Arduino.h"
+
 #include "MySPIFFS.h"
 
 
@@ -38,11 +38,13 @@ void setup(){
     
     listDir(SPIFFS, "/", 0);
 
-    writeFile(SPIFFS, "/ThingName.txt", THINGNAME);
-    writeFile(SPIFFS, "/Endpoint.txt", AWS_IOT_ENDPOINT);
-    writeFile(SPIFFS, "/CAcert.txt", AWS_CERT_CA);
-    writeFile(SPIFFS, "/CRTcert.txt", AWS_CERT_CRT);
-    writeFile(SPIFFS, "/Privkey.txt", AWS_CERT_PRIVATE);
+    createFile(SPIFFS, "/logFile.txt");
+    checkFile(SPIFFS, "/logFile.txt");
+    // writeFile(SPIFFS, "/ThingName.txt", THINGNAME);
+    // writeFile(SPIFFS, "/Endpoint.txt", AWS_IOT_ENDPOINT);
+    // writeFile(SPIFFS, "/CAcert.txt", AWS_CERT_CA);
+    // writeFile(SPIFFS, "/CRTcert.txt", AWS_CERT_CRT);
+    // writeFile(SPIFFS, "/Privkey.txt", AWS_CERT_PRIVATE);
 
     listDir(SPIFFS, "/", 0);
     

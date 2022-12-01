@@ -32,10 +32,11 @@ static const int off = 0;
 static int currentLightLevel = 0;
 
 #ifdef ACTIVATE_BY_TIME
-static const int activationTimeHours = 10;
+//change these to change the activation times 
+static const int activationTimeHours = 11;
 static const int activationTimeMins = 50;
-static const int deactivationTimeHours = 10;
-static const int deactivationTimeMins = 52;
+static const int deactivationTimeHours = 11;
+static const int deactivationTimeMins = 51;
 #endif
 
 #ifdef ACTIVATE_BY_MOTION
@@ -101,13 +102,17 @@ void daliTimeActivation(void* parameters){
 #endif
 
 void daliINIT(void){
+
+    Serial.println("dali init");
+
     pinMode(rxPin, INPUT);
     pinMode(txPin, OUTPUT);
     softSerial.begin(115200);
 
 #ifdef ACTIVATE_BY_MOTION
-    mutex = xSemaphoreCreateMutex();
 
+    mutex = xSemaphoreCreateMutex();
+    Serial.println("Creating Tasks");
     xTaskCreate(
         checkActivationFlag, 
         "dali activation chech", 
@@ -115,9 +120,12 @@ void daliINIT(void){
         NULL, 
         1, 
         NULL
-        );
+    );
+
 #endif
 #ifdef ACTIVATE_BY_TIME
+
+    Serial.println("Creating Tasks");
     xTaskCreate( 
         daliTimeActivation,
         "checking for light event times",
@@ -126,6 +134,7 @@ void daliINIT(void){
         1,
         NULL
     );
+
 #endif
     Serial.println("dali init complete");
     

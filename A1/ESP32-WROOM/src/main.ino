@@ -38,12 +38,18 @@ void setup()
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
  
-  //connectAWS();
+  connectAWS();
   daliINIT();
-  //init_spi();
+  init_spi();
   //mesh_init();
   // xTaskCreatePinnedToCore(
-
+  //   spiLoopPeripheral,
+  //   "loops and send images",
+  //   12240,
+  //   NULL,
+  //   1,
+  //   NULL,
+  //   1
   // );
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
@@ -53,8 +59,7 @@ void loop()
 {
 
   //mesh_update();
-  //checkMQTT();
-  //spiLoopPeripheral();
-  
+  checkMQTT();
+  spiLoopPeripheral();
   vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

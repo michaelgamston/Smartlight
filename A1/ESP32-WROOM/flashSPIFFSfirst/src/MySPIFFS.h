@@ -48,6 +48,35 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels);
 
 /* 
     
+    Input: 
+        -fs:FS &fs (file system object)
+        - const char* path
+    Output: prints message if file creation failed
+    Return: N/A  
+    Action: 
+        - creates a new file with specifed file path 
+    Comments: N/A
+
+*/
+void createFile(fs::FS &fs, const char * path);
+
+/* 
+    
+    Input: 
+        -fs:FS &fs (file system object)
+        - const char* path 
+
+    Output: prints message depending on result of file search 
+    Return: N/A  
+    Action: 
+        - opens file system and checks for selected file path 
+    Comments: N/A
+
+*/
+bool checkFile(fs::FS &fs, const char* path);
+
+/* 
+    
     Input:
         - fs::FS &fs (file system object)
         - const char* path 

@@ -23,7 +23,7 @@ Branch - main
 //#define USE_WIFI
 
 //topics 
-const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "TestTX";
+const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "Images";
 const char* AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
 const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
 
@@ -105,11 +105,11 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
 
 void send_image(uint8_t *im, size_t size) 
 {
-  client->beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false);
+  if(!client->beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false)) Serial.println("Publush failed");
   client->write(im, size);
   client->endPublish();
-  Serial.println("IMAGE PUBLISHED");
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  Serial.println("Send_image finished");
+  delay(1000);
 } 
 
 void send_params()
@@ -121,8 +121,8 @@ void send_params()
   doc["device_id"] = "id";
   char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
   serializeJson(doc, jsonBuffer); // print to client
-  client->publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
-  Serial.println("PARAMS PUBLISHED");
+  if(!client->publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer)) Serial.println("Publush failed");
+  else Serial.println("PARAMS PUBLISHED");
 }
 
 #ifdef USE_WIFI
@@ -303,6 +303,9 @@ bool connectAWS()
         Serial.println("Already connected to AWS IOT");
         return true;
     }
+
+    boolean res = client->setBufferSize(8*1024); // ok for 640*480
+    if (res) Serial.println("Buffer resized."); else Serial.println("Buffer resizing failed");
 
     return false;
 }
