@@ -40,19 +40,22 @@ void updateLogFile(int lightLevel) {
 void logFileToAWS(void* parameters) {
 
     while(1){ 
+        // 60000ms or triggers every minuet
         vTaskDelay(60000/ portTICK_PERIOD_MS);
-        Serial.println("log file sent to aws");
+        Serial.println("Log file sent to aws");
         String contents = fileToString(SPIFFS, path);
+        LTE_publish(AWS_IOT_PUBLISH_LOGFILES_TOPIC, "test");
         LTE_publish(AWS_IOT_PUBLISH_LOGFILES_TOPIC, contents.c_str());
         //opening the file in write mode and not append should clean it contents 
         createFile(SPIFFS, path);
+        Serial.println("Log file sent to aws");
     }
        
 }
 
 bool logFileInit(void){
 
-    Serial.println("log file init start");
+    Serial.println("Log file init start");
     createFile(SPIFFS, path);
     if(!checkFile(SPIFFS, path)){
         return false;

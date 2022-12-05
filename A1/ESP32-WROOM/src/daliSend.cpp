@@ -31,6 +31,10 @@ static const int low = 20;
 static const int off = 0; 
 static int currentLightLevel = 0;
 
+static const int instructions = 4;
+int lightTime[instructions][2];
+bool daliTestSwitchFlag = false; 
+
 #ifdef ACTIVATE_BY_TIME
 //change these to change the activation times 
 static const int activationTimeHours = 11;
@@ -140,6 +144,17 @@ void daliINIT(void){
     
 }
 
+// void daliTestSwitchInit(int lightTimeAWS[4][2]){
+//     lightTime = lightTimeAWS;
+// }
+
+// void daliTestSwitch(void* paramters){
+//     for(int i = 0; i < instructions; i++){
+//         daliSend(lightTime[0][0]);
+//         vTaskDelay(lightTime[0][1]);
+//     }
+// }
+
 
 void daliSend(int lightLevel){
     
@@ -148,7 +163,6 @@ void daliSend(int lightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
         updateLogFile(lightLevel);
-
         Serial.print("New light level sent: ");
         Serial.println(currentLightLevel);
     }else {

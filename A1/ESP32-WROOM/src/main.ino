@@ -24,6 +24,7 @@ Branch - main
 #include "MySPIFFS.h"
 #include "mesh.h"
 #include "daliSend.h"
+#include "logControl.h"
 
 
 #define PIN_TX              27
@@ -41,6 +42,7 @@ void setup()
   connectAWS();
   daliINIT();
   init_spi();
+  logFileInit();
   //mesh_init();
   // xTaskCreatePinnedToCore(
   //   spiLoopPeripheral,
@@ -60,6 +62,6 @@ void loop()
 
   //mesh_update();
   checkMQTT();
-  spiLoopPeripheral();
+  //spiLoopPeripheral();
   vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

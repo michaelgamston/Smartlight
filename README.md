@@ -1,11 +1,20 @@
 # Comments 
 Remember before launch to #define out any debuging. I.e serial stuff as this won't have function in final MVP product. 
 
+# TODO 
+
+- Save all certs in SPIFFS, get rid of connect.h 
+- Get rid of USE_WIFI sections 
+- Complete testing 
+
+
 # Michaels last changes
 
 Changed location of ESPtime defination to its own location 
+Changes LTE_Publish to accept a topic parameter
 
 # Roberts last changes
+
 
 # Structure
 

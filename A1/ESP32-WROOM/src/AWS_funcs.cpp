@@ -99,6 +99,8 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         //should  be8:34:20 1/4/2021
         Serial.println(ESPtime.getDateTime());
         break;
+      // case 4: 
+      //   daliTestSwitch(doc["lightTime"]);
       break;
     }
 }

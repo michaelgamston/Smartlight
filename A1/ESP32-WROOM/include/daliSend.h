@@ -19,7 +19,7 @@ Branch - main
 
 #pragma once
 
-
+extern bool daliTestSwitchFlag; 
 
 #define ACTIVATE_BY_TIME
 
@@ -68,6 +68,32 @@ void daliChangeFlagStatus(bool status);
 */
 void daliTimeActivation(void* parameters);
 #endif
+
+// /* 
+    
+//     Input: int *lightTime 
+//     Output: sets the lightTime array for use in the thread
+//     Return: N/A  
+//     Action: 
+//         - creates thread for daliTestSwitch
+//     Comments: N/A
+
+// */
+// void daliTestSwitchInit(int lightTime[][2]);
+
+// /* 
+    
+//     Input: int *lightTime 
+//     Output: sends selected light levels through to the dali controler 
+//     Return: N/A  
+//     Action: 
+//         - runs through the given array 
+//         - send a light level from the array and the waits the given time before sending the next 
+//     Comments: N/A
+
+// */
+// void daliTestSwitch(void* parameters);
+
 /* 
     
     Input: N/A

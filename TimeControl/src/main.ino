@@ -71,6 +71,10 @@ void setup(void){
 
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
+    pinMode(4, OUTPUT);
+    digitalWrite(4, HIGH);
+    delay(500);
+    digitalWrite(4, LOW);
     delay(10000); //give time for lilygo to start up before sending time update
 
 }
