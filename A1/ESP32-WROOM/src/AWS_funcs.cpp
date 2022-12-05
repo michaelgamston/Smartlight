@@ -23,7 +23,7 @@ Branch - main
 //#define USE_WIFI
 
 //topics 
-const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "Images";
+const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "TestTX";
 const char* AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
 const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
 
@@ -50,7 +50,7 @@ const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
 
 #ifdef USE_WIFI
   WiFiClientSecure net = WiFiClientSecure();
-  PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, net);
+  PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, net);
 #else
     #include <TinyGsmClient.h>
     #include <SSLClient.h>
@@ -65,11 +65,11 @@ const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
     TinyGsm modem(Serial1);
     TinyGsmClient LTE_client(modem);
     SSLClient LTE_secureClient(&LTE_client);
-    PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
+    PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
 void checkMQTT(void){
-  client->loop();
+  client.loop();
 }
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
@@ -105,11 +105,11 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
 
 void send_image(uint8_t *im, size_t size) 
 {
-  if(!client->beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false)) Serial.println("Publush failed");
-  client->write(im, size);
-  client->endPublish();
-  Serial.println("Send_image finished");
-  delay(1000);
+  client.beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false);
+  client.write(im, size);
+  client.endPublish();
+  Serial.println("IMAGE PUBLISHED");
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
 } 
 
 void send_params()
@@ -121,8 +121,8 @@ void send_params()
   doc["device_id"] = "id";
   char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
   serializeJson(doc, jsonBuffer); // print to client
-  if(!client->publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer)) Serial.println("Publush failed");
-  else Serial.println("PARAMS PUBLISHED");
+  client.publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
+  Serial.println("PARAMS PUBLISHED");
 }
 
 #ifdef USE_WIFI
@@ -162,20 +162,20 @@ bool connectAWS()
 
   Serial.println("CONNECTING TO AWS IOT");
 
-  while (!client->connect(THINGNAME.c_str()))
+  while (!client.connect(THINGNAME.c_str()))
   {
     Serial.print(".");
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 
-  if (!client->connected())
+  if (!client.connected())
   {
     Serial.println("AWS IoT TIMEOUT!");
     return false;
   }
 
   // Subscribe to a topic
-  client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
   Serial.println("AWS IoT TOPIC SUBSCRIBED");
   return true;
@@ -273,7 +273,7 @@ bool connectAWS()
 {
     static bool LTE_ready = false;
 
-    if((LTE_ready == false) || (client->connected() == false) )
+    if((LTE_ready == false) || (client.connected() == false) )
     {
         while(!LTE_ready)
           LTE_ready = LTE_connect();
@@ -284,10 +284,10 @@ bool connectAWS()
         Serial.print("Certs set");
         for(int i=0; i<10; i++)
         {
-             if(client->connect(THINGNAME.c_str()))
+             if(client.connect(THINGNAME.c_str()))
             {
-                client->subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-                client->subscribe(AWS_IOT_SUBSCRIBE_TIME_TOPIC);
+                client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+                client.subscribe(AWS_IOT_SUBSCRIBE_TIME_TOPIC);
                 Serial.println("CONNECTED AWS IOT");
                 return true;
             }
@@ -304,9 +304,6 @@ bool connectAWS()
         return true;
     }
 
-    boolean res = client->setBufferSize(8*1024); // ok for 640*480
-    if (res) Serial.println("Buffer resized."); else Serial.println("Buffer resizing failed");
-
     return false;
 }
 
@@ -315,7 +312,7 @@ bool LTE_publish(const char *message, const char* topic)
 {
     for(int i=0; i<3; i++)
     {
-        if(client->publish(topic, message))
+        if(client.publish(topic, message))
         {
             Serial.println("Publish OK");
             return true;
