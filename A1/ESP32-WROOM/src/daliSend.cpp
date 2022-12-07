@@ -26,9 +26,9 @@ static const byte txPin = 32;
 
 static SoftwareSerial softSerial (rxPin, txPin);
 
-static const int high = 100;
+static const int high = 99;
 static const int low = 20;
-static const int off = 0; 
+static const int off = 5; 
 static int currentLightLevel = 0;
 
 static const int instructions = 4;
@@ -37,10 +37,10 @@ bool daliTestSwitchFlag = false;
 
 #ifdef ACTIVATE_BY_TIME
 //change these to change the activation times 
-static const int activationTimeHours = 11;
-static const int activationTimeMins = 50;
-static const int deactivationTimeHours = 11;
-static const int deactivationTimeMins = 51;
+static const int activationTimeHours = 15;
+static const int activationTimeMins = 17;
+static const int deactivationTimeHours = 15;
+static const int deactivationTimeMins = 18;
 #endif
 
 #ifdef ACTIVATE_BY_MOTION
@@ -91,11 +91,11 @@ void daliTimeActivation(void* parameters){
     while(1){
         hours = ESPtime.getHour(true);
         mins = ESPtime.getMinute();
-        if(hours == activationTimeHours && mins == activationTimeMins){
+        if(hours == activationTimeHours && mins == activationTimeMins && currentLightLevel != high){
             daliSend(high);
             currentLightLevel = high;
         }
-        else if(hours == deactivationTimeHours && mins == deactivationTimeMins){
+        else if(hours == deactivationTimeHours && mins == deactivationTimeMins && currentLightLevel != off){
             daliSend(off);
             currentLightLevel = off;
         }
@@ -162,7 +162,7 @@ void daliSend(int lightLevel){
     if(lightLevel != currentLightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
-        updateLogFile(lightLevel);
+        //updateLogFile(lightLevel);
         Serial.print("New light level sent: ");
         Serial.println(currentLightLevel);
     }else {

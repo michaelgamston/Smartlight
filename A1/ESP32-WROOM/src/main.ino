@@ -42,7 +42,7 @@ void setup()
   connectAWS();
   daliINIT();
   init_spi();
-  logFileInit();
+  //logFileInit();
   //mesh_init();
   // xTaskCreatePinnedToCore(
   //   spiLoopPeripheral,
@@ -62,6 +62,6 @@ void loop()
 
   //mesh_update();
   checkMQTT();
-  //spiLoopPeripheral();
+  spiLoopPeripheral();
   vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

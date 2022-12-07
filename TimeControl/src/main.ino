@@ -10,7 +10,7 @@ const char* password = "pqeh8163";
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
+const int   daylightOffset_sec = 0;
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, net);
