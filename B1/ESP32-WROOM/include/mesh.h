@@ -33,7 +33,25 @@ Branch - main
     Action: sends a broadcast message to all mesh nodes, which includes its ID
     Comments: N/A
 */
-void sendMessage(void*);
+void pingEveryone(void*);
+
+/*
+    Input: const char* msg
+    Output: N/A
+    Return: N/A  
+    Action: sends a broadcast message to all mesh nodes
+    Comments: N/A
+*/
+void sendToEveryone(const char* msg);
+
+/*
+    Input: uint32_t nodeId, const char* msg
+    Output: N/A
+    Return: N/A  
+    Action: sends a message to a mesh node, known by its ID
+    Comments: N/A
+*/
+void sendToNode(uint32_t nodeId, const char* msg);
 
 /*
     Input: uint32_t form, String &msg
