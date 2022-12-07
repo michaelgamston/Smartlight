@@ -24,6 +24,7 @@ Branch - main
 #include "MySPIFFS.h"
 #include "mesh.h"
 #include "daliSend.h"
+#include "logControl.h"
 
 
 #define PIN_TX              27
@@ -35,6 +36,7 @@ Branch - main
 void setup()
 {
   SPIFFS.begin();
+  //createFile(SPIFFS, "/LogFile.txt");
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
  
@@ -42,15 +44,9 @@ void setup()
   daliINIT();
   init_spi();
   //mesh_init();
-  // xTaskCreatePinnedToCore(
-  //   spiLoopPeripheral,
-  //   "loops and send images",
-  //   12240,
-  //   NULL,
-  //   1,
-  //   NULL,
-  //   1
-  // );
+
+  //logFileInit();
+
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 }
@@ -60,6 +56,7 @@ void loop()
 
   //mesh_update();
   checkMQTT();
-  spiLoopPeripheral();
-  vTaskDelay(2000/ portTICK_PERIOD_MS);
+  //LTE_publish("ana are mere", "TestRX");
+  //spiLoopPeripheral();
+  //vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

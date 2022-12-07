@@ -22,7 +22,7 @@ Branch - main
 #include <SoftwareSerial.h>
 
 static const byte rxPin = 33;
-static const byte txPin = 32;
+static const byte txPin = 34;
 
 static SoftwareSerial softSerial (rxPin, txPin);
 
