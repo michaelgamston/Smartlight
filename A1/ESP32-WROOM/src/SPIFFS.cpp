@@ -4,13 +4,13 @@ File Name - SPIFFS.cpp
 
 Author/s - Michael Gamston
 
-Description - Functions for SPIFFS handling 
+Description - Functions for SPIFFS handling
 
 Hardware - A0.3 (ESP32-WROOM, 2xESP32-CAM)
 
-Comments - Make sure to include secrets.h. No header file for declaring functions, just keeps file handling 
+Comments - Make sure to include secrets.h. No header file for declaring functions, just keeps file handling
 
-Libraries 
+Libraries
     - arduino - esp32 - FS.h - https://github.com/espressif/arduino-esp32/tree/master/libraries/FS
     - arduino - esp32 - SPIFFS.h - https://github.com/espressif/arduino-esp32/tree/master/libraries/SPIFFS
 
@@ -22,28 +22,36 @@ Branch - main
 */
 #include "MySPIFFS.h"
 
-void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
+{
     Serial.printf("Listing directory: %s\r\n", dirname);
 
     File root = fs.open(dirname);
-    if(!root){
+    if (!root)
+    {
         Serial.println("- failed to open directory");
         return;
     }
-    if(!root.isDirectory()){
+    if (!root.isDirectory())
+    {
         Serial.println(" - not a directory");
         return;
     }
 
     File file = root.openNextFile();
-    while(file){
-        if(file.isDirectory()){
+    while (file)
+    {
+        if (file.isDirectory())
+        {
             Serial.print("  DIR : ");
             Serial.println(file.name());
-            if(levels){
-                listDir(fs, file.path(), levels -1);
+            if (levels)
+            {
+                listDir(fs, file.path(), levels - 1);
             }
-        } else {
+        }
+        else
+        {
             Serial.print("  FILE: ");
             Serial.print(file.name());
             Serial.print("\tSIZE: ");
@@ -53,114 +61,143 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     }
 }
 
-void createFile(fs::FS &fs, const char * path){
+int checkSize(fs::FS &fs, const char *path){
+    File file = fs.open(path);
+    return file.size();
+}
+
+void createFile(fs::FS &fs, const char *path)
+{
     Serial.printf("Creating file: %s\r\n", path);
 
     File file = fs.open(path, FILE_WRITE);
-    if(!file){
+    if (!file)
+    {
         Serial.println("- failed to open file for writing");
         return;
     }
     file.close();
-
 }
 
-bool checkFile(fs::FS &fs, const char* path){
+bool checkFile(fs::FS &fs, const char *path)
+{
     Serial.println("Checking file creation");
     File file = fs.open(path);
-    if(file.isDirectory()){
-        Serial.print("File ");
-        Serial.print(path);
-        Serial.println(" found");
+    if (file)
+    {
+        Serial.print("FILE: ");
+        Serial.print(file.name());
+        Serial.print("\tSIZE: ");
+        Serial.println(file.size());
         return true;
     }
-    else {
-        Serial.print("File ");
-        Serial.print(path);
-        Serial.println(" not found");
+    else
+    {
+        Serial.print("File not found");
         return false;
     }
 }
 
-void readFile(fs::FS &fs, const char * path){
+void readFile(fs::FS &fs, const char *path)
+{
     Serial.printf("Reading file: %s\r\n", path);
 
     File file = fs.open(path);
-    if(!file || file.isDirectory()){
+    if (!file || file.isDirectory())
+    {
         Serial.println("- failed to open file for reading");
         return;
     }
 
     Serial.println("- read from file:");
-    while(file.available()){
+    while (file.available())
+    {
         Serial.write(file.read());
     }
     file.close();
 }
 
-String fileToString(fs::FS &fs, const char * path){
+String fileToString(fs::FS &fs, const char *path)
+{
 
-  Serial.printf("Reading file: %s\r\n", path);
-  String var;
-  File file = fs.open(path);
-  if(!file || file.isDirectory()){
-      Serial.println("- failed to open file for reading");
-  }
+    Serial.printf("Reading file: %s\r\n", path);
+    String var;
+    File file = fs.open(path);
+    if (!file || file.isDirectory())
+    {
+        Serial.println("- failed to open file for reading");
+    }
 
-  Serial.println("Reading string");
-  var = file.readString();
+    Serial.println("Reading string");
+    var = file.readString();
 
-  return var;
+    return var;
 }
 
-void writeFile(fs::FS &fs, const char * path, const char * message){
+void writeFile(fs::FS &fs, const char *path, const char *message)
+{
     Serial.printf("Writing file: %s\r\n", path);
 
     File file = fs.open(path, FILE_WRITE);
-    if(!file){
+    if (!file)
+    {
         Serial.println("- failed to open file for writing");
         return;
     }
-    if(file.print(message)){
+    if (file.print(message))
+    {
         Serial.println("- file written");
-    } else {
+    }
+    else
+    {
         Serial.println("- write failed");
     }
     file.close();
 }
 
-void appendFile(fs::FS &fs, const char * path, const char * message){
+void appendFile(fs::FS &fs, const char *path, const char *message)
+{
     Serial.printf("Appending to file: %s\r\n", path);
 
     File file = fs.open(path, FILE_APPEND);
-    if(!file){
+    if (!file)
+    {
         Serial.println("- failed to open file for appending");
         return;
     }
-    if(file.print(message)){
+    if (file.print(message))
+    {
         Serial.println("- message appended");
-    } else {
+    }
+    else
+    {
         Serial.println("- append failed");
     }
     file.close();
 }
 
-void renameFile(fs::FS &fs, const char * path1, const char * path2){
+void renameFile(fs::FS &fs, const char *path1, const char *path2)
+{
     Serial.printf("Renaming file %s to %s\r\n", path1, path2);
-    if (fs.rename(path1, path2)) {
+    if (fs.rename(path1, path2))
+    {
         Serial.println("- file renamed");
-    } else {
+    }
+    else
+    {
         Serial.println("- rename failed");
     }
 }
 
-void deleteFile(fs::FS &fs, const char * path){
+void deleteFile(fs::FS &fs, const char *path)
+{
     Serial.printf("Deleting file: %s\r\n", path);
-    if(fs.remove(path)){
+    if (fs.remove(path))
+    {
         Serial.println("- file deleted");
-    } else {
+    }
+    else
+    {
         Serial.println("- delete failed");
     }
 }
-
-

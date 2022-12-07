@@ -10,7 +10,7 @@ const char* password = "pqeh8163";
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
+const int   daylightOffset_sec = 0;
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient *client = new PubSubClient(AWS_IOT_ENDPOINT, 8883, net);
@@ -71,6 +71,10 @@ void setup(void){
 
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
+    pinMode(4, OUTPUT);
+    digitalWrite(4, HIGH);
+    delay(500);
+    digitalWrite(4, LOW);
     delay(10000); //give time for lilygo to start up before sending time update
 
 }

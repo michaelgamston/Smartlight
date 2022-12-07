@@ -43,6 +43,7 @@ void setup()
   connectAWS();
   daliINIT();
   init_spi();
+  //logFileInit();
   //mesh_init();
 
   //logFileInit();
