@@ -6,6 +6,7 @@ Remember before launch to #define out any debuging. I.e serial stuff as this won
 - Save all certs in SPIFFS, get rid of connect.h 
 - Get rid of USE_WIFI sections 
 - Complete testing 
+- (uncertain) Replace SSLClient library, which causes connections faults and problems sending files to AWS
 
 
 # Michaels last changes
@@ -15,6 +16,8 @@ Changes LTE_Publish to accept a topic parameter
 
 # Roberts last changes
 
+Added some new mesh related functions
+Fixen mqtt related problems to sending large files (works over wifi only)
 
 # Structure
 
