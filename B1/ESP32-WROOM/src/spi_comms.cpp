@@ -179,7 +179,7 @@ void spiLoopPeripheral(void){
     for (int i = 0; i <= 1; i++){
      //if(digitalRead(TRList[i]) == LOW){ 
       spi_txn((i+1), 8192);
-      //send_image(spi_buf, SPI_BUFFER_SIZE);
+      send_image(spi_buf, SPI_BUFFER_SIZE);
       set_buf();
       //}else Serial.println("TRP pin high");
     }  
