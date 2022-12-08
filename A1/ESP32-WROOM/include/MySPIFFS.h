@@ -176,3 +176,16 @@ void renameFile(fs::FS &fs, const char * path1, const char * path2);
 */
 void deleteFile(fs::FS &fs, const char * path);
 
+/* 
+    
+    Input: 
+        - fs::FS &fs (file system object)
+        - const char* path
+    Output: N/A
+    Return: int file size
+    Action: 
+        - uses the file object to return file size
+    Comments: N/A
+
+*/
+int checkSize(fs::FS &fs, const char *path);
