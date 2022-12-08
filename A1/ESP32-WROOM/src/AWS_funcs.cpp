@@ -30,6 +30,20 @@ const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
 const char* AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
 const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
 
+/*
+Use this mutex to control any functions that would connect, subscribe
+or publish to AWS using MQTT, since PubSubClient library isn't thread safe
+
+Add the following code to prevent undesired behaviours caused by this:
+
+if(xSemaphoreTake(mutex, delayInMS) == pdTRUE) {
+  ...........................
+  add your code here
+  ...........................
+  xSemaphoreGive(mutex);
+}
+*/
+static SemaphoreHandle_t mutex;
 
 #ifdef SPIFFSdef
   //SPIFFS credentials
@@ -68,8 +82,15 @@ const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
     PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
-void checkMQTT(void){
-  client.loop();
+void checkMQTT(void* parameters){
+  while(1){
+    if(xSemaphoreTake(mutex, 0) == pdTRUE){
+      if(client.connected()) client.loop();
+      else connectAWS();
+      xSemaphoreGive(mutex);
+    }
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+  }
 }
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
@@ -120,13 +141,18 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
 
 void send_image(uint8_t *im, size_t size) 
 {
-  int ret;
-  client.beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false);
-  client.write(im, size);
-  ret = client.endPublish();
-  if (ret == 1) Serial.println("IMAGE PUBLISHED");
-  else Serial.println("image failed");
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  if(xSemaphoreTake(mutex, 5000) == pdTRUE){
+    if(client.beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false)){
+      size_t chunks = size / 1024;
+      for(size_t i = 0; i < chunks; i++)
+        client.write(im + i*1024, 1024);
+      if(size % 1024 !=0) client.write(im + chunks*1024, size % 1024);
+      client.endPublish();
+      Serial.println("Image published");
+    }
+    else Serial.println("Image failed");
+    xSemaphoreGive(mutex);
+  }
 } 
 
 void send_params()
@@ -138,7 +164,10 @@ void send_params()
   doc["device_id"] = "id";
   char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
   serializeJson(doc, jsonBuffer); // print to client
-  client.publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
+  if(xSemaphoreTake(mutex, 0) == pdTRUE){
+    client.publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
+    xSemaphoreGive(mutex);
+  } 
   Serial.println("PARAMS PUBLISHED");
 }
 
@@ -269,7 +298,7 @@ bool LTE_connect()
     }
 
     Serial.println("Connecting GPRS..");
-    modem.gprsConnect("everywhere", "eesecure", "secure");
+    modem.gprsConnect("three.co.uk");
     if (modem.isGprsConnected()) { 
         Serial.println("GPRS connected");
     }
@@ -289,6 +318,7 @@ bool LTE_connect()
 bool connectAWS()
 {
     static bool LTE_ready = false;
+    mutex = xSemaphoreCreateMutex();
 
     if((LTE_ready == false) || (client.connected() == false) )
     {
@@ -298,7 +328,8 @@ bool connectAWS()
         LTE_secureClient.setCACert(AWS_CERT_CA.c_str());
         LTE_secureClient.setCertificate(AWS_CERT_CRT.c_str());
         LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE.c_str());
-        Serial.print("Certs set");
+        Serial.println("Certs set");
+        client.setBufferSize(8192);
         for(int i=0; i<10; i++)
         {
              if(client.connect(THINGNAME.c_str()))
@@ -329,16 +360,18 @@ bool LTE_publish(const char *message, const char* topic)
 {
     for(int i=0; i<3; i++)
     {
+      if(xSemaphoreTake(mutex, 5000) == pdTRUE) {
         if(client.publish(topic, message))
         {
             Serial.println("Publish OK");
+            xSemaphoreGive(mutex);
             return true;
         }
-
         Serial.println("Publish failed");
+        xSemaphoreGive(mutex);
         vTaskDelay(100 / portTICK_PERIOD_MS);
+      }
     }
-
     return false;
 }
 
