@@ -24,6 +24,7 @@ Branch - main
 #include "MySPIFFS.h"
 #include "mesh.h"
 #include "daliSend.h"
+#include "logControl.h"
 
 
 #define PIN_TX              27
@@ -34,27 +35,35 @@ Branch - main
 
 void setup()
 {
-  SPIFFS.begin();
+  if(!SPIFFS.begin()) {
+    SPIFFS.format();
+    ESP.restart();
+  }
+  
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
  
-  //connectAWS();
+  connectAWS();
   daliINIT();
-  //init_spi();
+  init_spi();
+  logFileInit();
   //mesh_init();
-  // xTaskCreatePinnedToCore(
 
-  // );
+  xTaskCreatePinnedToCore(
+    checkMQTT,
+    "checking mqtt",
+    4096,
+    NULL,
+    1,
+    NULL,
+    1
+  );
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 }
 
 void loop()
 {
-
-  //mesh_update();
-  //checkMQTT();
   //spiLoopPeripheral();
-  
   vTaskDelay(2000/ portTICK_PERIOD_MS);
 }
