@@ -58,12 +58,12 @@ void setup()
     NULL,
     1
   );
+  
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 }
 
 void loop()
 {
-  //spiLoopPeripheral();
-  vTaskDelay(2000/ portTICK_PERIOD_MS);
+  spiLoopPeripheral();
 }

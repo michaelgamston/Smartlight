@@ -49,7 +49,7 @@ extern const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC;
     void getSPIFFS();
 #endif
 
-void checkMQTT(void*);
+void checkMQTT(void* parameters);
 
 /* 
      
