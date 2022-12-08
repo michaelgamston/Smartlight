@@ -26,13 +26,12 @@ static const char* path = "/LogFile.txt";
 
 void updateLogFile(int lightLevel) {
 
-    sprintf(dateTimeLevelLog, "Level changed to %i : ", lightLevel);
-    const char* suffix = ESPtime.getTime().c_str();
-    strcat(dateTimeLevelLog, suffix);
-
+    sprintf(dateTimeLevelLog, "Level changed to %i%.\n Change occured at ", lightLevel);
+    const String prefix = ESPtime.getTime();
+    const char* pfix = prefix.c_str();
+    strcat(dateTimeLevelLog, pfix);
     Serial.print("log file updated with '");
-    Serial.print(dateTimeLevelLog);
-    Serial.println("'");
+    Serial.println(dateTimeLevelLog);
 
     appendFile(SPIFFS, path, dateTimeLevelLog);
 }
@@ -40,19 +39,23 @@ void updateLogFile(int lightLevel) {
 void logFileToAWS(void* parameters) {
 
     while(1){ 
+        // 60000ms or triggers every minuet
         vTaskDelay(60000/ portTICK_PERIOD_MS);
-        Serial.println("log file sent to aws");
-        String contents = fileToString(SPIFFS, path);
-        LTE_publish(AWS_IOT_PUBLISH_LOGFILES_TOPIC, contents.c_str());
-        //opening the file in write mode and not append should clean it contents 
-        createFile(SPIFFS, path);
+        if(checkSize(SPIFFS, path) > 0){
+            Serial.println("Log file sent to aws");
+            String contents = fileToString(SPIFFS, path);
+            LTE_publish(contents.c_str(), AWS_IOT_PUBLISH_LOGFILES_TOPIC);
+            //opening the file in write mode and not append should clean it contents 
+            createFile(SPIFFS, path);
+            Serial.println("Log file sent to aws");
+        }    
     }
        
 }
 
 bool logFileInit(void){
 
-    Serial.println("log file init start");
+    Serial.println("Log file init start");
     createFile(SPIFFS, path);
     if(!checkFile(SPIFFS, path)){
         return false;

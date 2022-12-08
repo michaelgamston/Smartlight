@@ -53,6 +53,11 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     }
 }
 
+int checkSize(fs::FS &fs, const char *path){
+    File file = fs.open(path);
+    return file.size();
+}
+
 void createFile(fs::FS &fs, const char * path){
     Serial.printf("Creating file: %s\r\n", path);
 

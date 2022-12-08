@@ -23,7 +23,7 @@ Branch - main
 //#define USE_WIFI
 
 //topics 
-const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "TestTX";
+const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "Images";
 const char* AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
 const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
 
@@ -68,8 +68,10 @@ const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
     PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
-void checkMQTT(void){
-  client.loop();
+void checkMQTT(void*){
+  while(1){
+    client.loop();
+  }
 }
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
@@ -96,19 +98,36 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         strptime(doc["time"], "%FT%TZ", &timeinfo);
         ESPtime.setTimeStruct(timeinfo);
         Serial.print("Time has been set to: ");
-        //should  be8:34:20 1/4/2021
         Serial.println(ESPtime.getDateTime());
         break;
+      // case 4: 
+      //   //expect a map containing number os instructions, and then instructions with index. [brightness %, and ms delay]
+      //   //{"Sequence": {"Size": 2,
+      //   //                "1" : [100, 50000],
+      //   //                "2" : [50, 10000],
+      //   //              }
+      //   // }
+      //   StaticJsonDocument<200> sequence = doc["Sequence"];
+      //   const int size = sequence["Size"];
+      //   char instructions[size][2];
+      //   for (int i = 0; i < size; i++){
+      //     char index = (char)i;
+      //     instructions[i][0] = sequence[index][0]; 
+      //     instructions[i][1] = sequence[index][1]; 
+      //   }
+      
       break;
     }
 }
 
 void send_image(uint8_t *im, size_t size) 
 {
+  int ret;
   client.beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false);
   client.write(im, size);
-  client.endPublish();
-  Serial.println("IMAGE PUBLISHED");
+  ret = client.endPublish();
+  if (ret == 1) Serial.println("IMAGE PUBLISHED");
+  else Serial.println("image failed");
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 } 
 

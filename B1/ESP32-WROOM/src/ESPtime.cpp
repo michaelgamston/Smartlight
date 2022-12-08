@@ -1,3 +1,3 @@
 #include "ESPtime.h"
 
-ESP32Time ESPtime(3600);
+ESP32Time ESPtime(0);

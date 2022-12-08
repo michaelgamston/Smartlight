@@ -26,16 +26,21 @@ static const byte txPin = 32;
 
 static SoftwareSerial softSerial (rxPin, txPin);
 
-static const int high = 100;
+static const int high = 99;
 static const int low = 20;
-static const int off = 0; 
+static const int off = 5; 
 static int currentLightLevel = 0;
 
+static const int instructions = 4;
+int lightTime[instructions][2];
+bool daliTestSwitchFlag = false; 
+
 #ifdef ACTIVATE_BY_TIME
-static const int activationTimeHours = 10;
-static const int activationTimeMins = 50;
-static const int deactivationTimeHours = 10;
-static const int deactivationTimeMins = 52;
+//change these to change the activation times 
+static const int activationTimeHours = 15;
+static const int activationTimeMins = 17;
+static const int deactivationTimeHours = 15;
+static const int deactivationTimeMins = 18;
 #endif
 
 #ifdef ACTIVATE_BY_MOTION
@@ -86,11 +91,11 @@ void daliTimeActivation(void* parameters){
     while(1){
         hours = ESPtime.getHour(true);
         mins = ESPtime.getMinute();
-        if(hours == activationTimeHours && mins == activationTimeMins){
+        if(hours == activationTimeHours && mins == activationTimeMins && currentLightLevel != high){
             daliSend(high);
             currentLightLevel = high;
         }
-        else if(hours == deactivationTimeHours && mins == deactivationTimeMins){
+        else if(hours == deactivationTimeHours && mins == deactivationTimeMins && currentLightLevel != off){
             daliSend(off);
             currentLightLevel = off;
         }
@@ -101,13 +106,15 @@ void daliTimeActivation(void* parameters){
 #endif
 
 void daliINIT(void){
+    Serial.println("dali init");
     pinMode(rxPin, INPUT);
     pinMode(txPin, OUTPUT);
     softSerial.begin(115200);
 
 #ifdef ACTIVATE_BY_MOTION
-    mutex = xSemaphoreCreateMutex();
 
+    mutex = xSemaphoreCreateMutex();
+    Serial.println("Creating Tasks");
     xTaskCreate(
         checkActivationFlag, 
         "dali activation chech", 
@@ -115,9 +122,12 @@ void daliINIT(void){
         NULL, 
         1, 
         NULL
-        );
+    );
+
 #endif
 #ifdef ACTIVATE_BY_TIME
+
+    Serial.println("Creating Tasks");
     xTaskCreate( 
         daliTimeActivation,
         "checking for light event times",
@@ -126,10 +136,22 @@ void daliINIT(void){
         1,
         NULL
     );
+
 #endif
     Serial.println("dali init complete");
     
 }
+
+// void daliTestSwitchInit(int lightTimeAWS[4][2]){
+//     lightTime = lightTimeAWS;
+// }
+
+// void daliTestSwitch(void* paramters){
+//     for(int i = 0; i < instructions; i++){
+//         daliSend(lightTime[0][0]);
+//         vTaskDelay(lightTime[0][1]);
+//     }
+// }
 
 
 void daliSend(int lightLevel){
@@ -139,7 +161,6 @@ void daliSend(int lightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
         updateLogFile(lightLevel);
-
         Serial.print("New light level sent: ");
         Serial.println(currentLightLevel);
     }else {
