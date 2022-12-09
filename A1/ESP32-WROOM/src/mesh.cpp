@@ -24,13 +24,21 @@ painlessMesh  mesh;
 static TaskHandle_t meshUpdater = NULL;
 static TaskHandle_t messageBroadcaster = NULL;
 
-void sendMessage(void* parameters) {
+void pingEveryone(void* parameters) {
   while(1) {
-    String msg = "Hi from node 10 ";
+    String msg = "Hi from root node ";
     msg += mesh.getNodeId();
     mesh.sendBroadcast( msg );
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
+    vTaskDelay(10000 / portTICK_PERIOD_MS);
   }
+}
+
+void sendToEveryone(const char* msg) {
+  mesh.sendBroadcast(msg);
+}
+
+void sendToNode(uint32_t nodeId, const char* msg) {
+  mesh.sendSingle(nodeId, msg);
 }
 
 void receivedCallback( uint32_t from, String &msg ) {
@@ -105,8 +113,8 @@ void mesh_init() {
   mesh.onNodeTimeAdjusted(&nodeTimeAdjustedCallback);
   mesh.onDroppedConnection(&droppedConnectionCallback);
 
-  //mesh.setRoot(true); // no more than one node should be set as root/parent node
-  mesh.setContainsRoot(true); // if a root/parent node was set, the rest of the nodes should be aware of it
+  mesh.setRoot(true); // no more than one node should be set as root/parent node
+  //mesh.setContainsRoot(true); // if a root/parent node was set, the rest of the nodes should be aware of it
 
   xTaskCreatePinnedToCore(
     mesh_update,
@@ -119,7 +127,7 @@ void mesh_init() {
   );
 
   xTaskCreatePinnedToCore(
-    sendMessage,
+    pingEveryone,
     "Message sender",
     2048,
     NULL,

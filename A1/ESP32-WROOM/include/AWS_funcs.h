@@ -24,10 +24,7 @@ Branch - main
 
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include <Effortless_SPIFFS.h>
 #include <ArduinoJson.h>
-
-extern WiFiClientSecure net;
 
 // Constants
 extern const char* AWS_IOT_PUBLISH_IMAGES_TOPIC;
@@ -52,7 +49,7 @@ extern const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC;
     void getSPIFFS();
 #endif
 
-void checkMQTT(void);
+void checkMQTT(void* parameters);
 
 /* 
      

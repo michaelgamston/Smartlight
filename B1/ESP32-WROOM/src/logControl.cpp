@@ -26,44 +26,45 @@ static const char* path = "/LogFile.txt";
 
 void updateLogFile(int lightLevel) {
 
-    sprintf(dateTimeLevelLog, "Level changed to %i : ", lightLevel);
-    const char* suffix = ESPtime.getTime().c_str();
-    strcat(dateTimeLevelLog, suffix);
-
+    const String prefix = ESPtime.getTime();
+    sprintf(dateTimeLevelLog, "Level changed to %i. Change occured at %s \n", lightLevel, prefix.c_str());
     Serial.print("log file updated with '");
-    Serial.print(dateTimeLevelLog);
-    Serial.println("'");
-
+    Serial.println(dateTimeLevelLog);
     appendFile(SPIFFS, path, dateTimeLevelLog);
 }
 
 void logFileToAWS(void* parameters) {
 
     while(1){ 
+        // 60000ms or triggers every minuet
         vTaskDelay(60000/ portTICK_PERIOD_MS);
-        Serial.println("log file sent to aws");
-        String contents = fileToString(SPIFFS, path);
-        LTE_publish(AWS_IOT_PUBLISH_LOGFILES_TOPIC, contents.c_str());
-        //opening the file in write mode and not append should clean it contents 
-        createFile(SPIFFS, path);
+        if(checkSize(SPIFFS, path) > 0){
+            Serial.println("Sending log file to aws");
+            String contents = fileToString(SPIFFS, path);
+            LTE_publish(contents.c_str(), AWS_IOT_PUBLISH_LOGFILES_TOPIC);
+            //opening the file in write mode and not append should clean it contents 
+            createFile(SPIFFS, path);
+            Serial.println("Log file sent to aws");
+        }    
     }
        
 }
 
 bool logFileInit(void){
 
-    Serial.println("log file init start");
+    Serial.println("Log file init start");
     createFile(SPIFFS, path);
     if(!checkFile(SPIFFS, path)){
         return false;
     }
-    if(xTaskCreate(
+    if(xTaskCreatePinnedToCore(
         logFileToAWS,
         "sends log file to aws every 30 mins",
         8192,
         NULL,
         2,
-        NULL
+        NULL,
+        1
     ) == pdFALSE) {
         Serial.println("Task failed to create");
         return false;

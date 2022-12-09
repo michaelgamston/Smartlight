@@ -26,13 +26,10 @@ static const char* path = "/LogFile.txt";
 
 void updateLogFile(int lightLevel) {
 
-    sprintf(dateTimeLevelLog, "Level changed to %i%.\n Change occured at ", lightLevel);
     const String prefix = ESPtime.getTime();
-    const char* pfix = prefix.c_str();
-    strcat(dateTimeLevelLog, pfix);
+    sprintf(dateTimeLevelLog, "Level changed to %i. Change occured at %s \n", lightLevel, prefix.c_str());
     Serial.print("log file updated with '");
     Serial.println(dateTimeLevelLog);
-
     appendFile(SPIFFS, path, dateTimeLevelLog);
 }
 
@@ -42,7 +39,7 @@ void logFileToAWS(void* parameters) {
         // 60000ms or triggers every minuet
         vTaskDelay(60000/ portTICK_PERIOD_MS);
         if(checkSize(SPIFFS, path) > 0){
-            Serial.println("Log file sent to aws");
+            Serial.println("Sending log file to aws");
             String contents = fileToString(SPIFFS, path);
             LTE_publish(contents.c_str(), AWS_IOT_PUBLISH_LOGFILES_TOPIC);
             //opening the file in write mode and not append should clean it contents 
@@ -60,13 +57,14 @@ bool logFileInit(void){
     if(!checkFile(SPIFFS, path)){
         return false;
     }
-    if(xTaskCreate(
+    if(xTaskCreatePinnedToCore(
         logFileToAWS,
         "sends log file to aws every 30 mins",
         8192,
         NULL,
         2,
-        NULL
+        NULL,
+        1
     ) == pdFALSE) {
         Serial.println("Task failed to create");
         return false;

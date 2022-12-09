@@ -3,18 +3,20 @@ Remember before launch to #define out any debuging. I.e serial stuff as this won
 
 # TODO 
 
-- Save all certs in SPIFFS, get rid of connect.h 
-- Get rid of USE_WIFI sections 
-- Complete testing 
+- [ ] Save all certs in SPIFFS, get rid of connect.h 
+- [ ] Get rid of USE_WIFI sections 
+- [ ] Complete testing 
 
 
 # Michaels last changes
 
-Changed location of ESPtime defination to its own location 
-Changes LTE_Publish to accept a topic parameter
+Changed location of ESPtime defination to its own location  
+Changed LTE_Publish to accept a topic parameter  
 
 # Roberts last changes
 
+Added some new mesh related functions  
+Fixed mqtt related problems to sending large files (because of mqtt's packet size limits) 
 
 # Structure
 
