@@ -146,7 +146,7 @@ void daliINIT(void){
     
 }
 
-void daliSeqenceInit(StaticJsonDocument<200> sequence){
+void daliSequenceInit(StaticJsonDocument<200> sequence){
     
     if (daliSequenceFlag) vTaskDelete(daliSequence);
 

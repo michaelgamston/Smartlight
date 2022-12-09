@@ -126,7 +126,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         //                "2" : [50, 10000],
         //              }s
         // }
-        daliSeqenceInit(doc["Sequence"]);
+        daliSequenceInit(doc["Sequence"]);
       
       break;
     }
