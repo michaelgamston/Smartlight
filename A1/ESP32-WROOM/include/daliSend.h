@@ -81,7 +81,7 @@ void daliTimeActivation(void* parameters);
     Comments: N/A
 
 */
-void git (StaticJsonDocument<200> sequence);
+void daliSequenceInit(StaticJsonDocument<200> sequence);
 
 /* 
     
@@ -98,7 +98,7 @@ void daliSequence(void* parameters);
 
 /* 
     
-    Input: N/AS
+    Input: N/A
     Output: N/A
     Return: N/A  
     Action: 
