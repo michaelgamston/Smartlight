@@ -84,7 +84,7 @@ static SemaphoreHandle_t mutex;
 
 void checkMQTT(void* parameters){
   while(1){
-    if(xSemaphoreTake(mutex, 0) == pdTRUE){
+    if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
       if(client.connected()) client.loop();
       else connectAWS();
       xSemaphoreGive(mutex);
@@ -120,13 +120,13 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         Serial.println(ESPtime.getDateTime());
         break;
       case 4: 
-        //expect a map containing number os instructions, and then instructions with index. [brightness %, and ms delay]
+        //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
         //{"Sequence": {"Size": 2,
         //                "1" : [100, 50000],
         //                "2" : [50, 10000],
         //              }s
         // }
-        daliTestSwitchInit(doc["Sequence"]);
+        daliSeqenceInit(doc["Sequence"]);
       
       break;
     }
@@ -134,7 +134,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
 
 void send_image(uint8_t *im, size_t size) 
 {
-  if(xSemaphoreTake(mutex, 5000) == pdTRUE){
+  if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
     if(client.beginPublish(AWS_IOT_PUBLISH_IMAGES_TOPIC, size, false)){
       size_t chunks = size / 1024;
       for(size_t i = 0; i < chunks; i++)
@@ -157,7 +157,7 @@ void send_params()
   doc["device_id"] = "id";
   char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
   serializeJson(doc, jsonBuffer); // print to client
-  if(xSemaphoreTake(mutex, 0) == pdTRUE){
+  if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
     client.publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
     xSemaphoreGive(mutex);
   } 
@@ -351,20 +351,19 @@ bool connectAWS()
 // for simple test
 bool LTE_publish(const char *message, const char* topic)
 {
-    for(int i=0; i<3; i++)
-    {
-      if(xSemaphoreTake(mutex, 5000) == pdTRUE) {
-        if(client.publish(topic, message))
-        {
-            Serial.println("Publish OK");
-            xSemaphoreGive(mutex);
-            return true;
-        }
-        Serial.println("Publish failed");
-        xSemaphoreGive(mutex);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+
+    if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE) {
+      if(client.publish(topic, message))
+      {
+          Serial.println("Publish OK");
+          xSemaphoreGive(mutex);
+          return true;
       }
+      Serial.println("Publish failed");
+      xSemaphoreGive(mutex);
+      vTaskDelay(100 / portTICK_PERIOD_MS);
     }
+  
     return false;
 }
 

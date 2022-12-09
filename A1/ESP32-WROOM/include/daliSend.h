@@ -81,7 +81,7 @@ void daliTimeActivation(void* parameters);
     Comments: N/A
 
 */
-void daliTestSwitchInit(StaticJsonDocument<200> sequence);
+void daliSequenceInit(StaticJsonDocument<200> sequence);
 
 /* 
     
@@ -94,7 +94,7 @@ void daliTestSwitchInit(StaticJsonDocument<200> sequence);
     Comments: N/A
 
 */
-void daliTestSwitch(void* parameters);
+void daliSequence(void* parameters);
 
 /* 
     

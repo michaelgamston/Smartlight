@@ -34,8 +34,8 @@ static int currentLightLevel = 0;
 
 int size;
 int instructions[][2];
-bool daliTestSwitchFlag = false; 
-TaskHandle_t *daliSequence; 
+bool daliSequenceFlag = false; 
+TaskHandle_t *daliSequenceHandle; 
 
 #ifdef ACTIVATE_BY_TIME
 //change these to change the activation times 
@@ -146,9 +146,9 @@ void daliINIT(void){
     
 }
 
-void daliTestSwitchInit(StaticJsonDocument<200> sequence){
+void daliSeqenceInit(StaticJsonDocument<200> sequence){
     
-    if (daliTestSwitchFlag) vTaskDelete(daliSequence);
+    if (daliSequenceFlag) vTaskDelete(daliSequence);
 
     size = sequence["Size"];
     for (int i = 0; i < size; i++){
@@ -157,12 +157,12 @@ void daliTestSwitchInit(StaticJsonDocument<200> sequence){
         instructions[i][1] = sequence[index][1]; 
     }
 
-    if (xTaskCreate(daliTestSwitch, "dali test sequencing", 2048, instructions, 2, daliSequence) == pdTRUE) daliTestSwitchFlag = true;
+    if (xTaskCreate(daliSequence, "dali test sequencing", 2048, instructions, 2, daliSequenceHandle) == pdTRUE) daliSequenceFlag = true;
 }
 
-void daliTestSwitch(void* paramters){
+void daliSequence(void* paramters){
     
-    while(daliTestSwitchFlag){ 
+    while(daliSequenceFlag){ 
         for(int i = 0; i < size; i++){
             daliSend(instructions[i][0]);
             vTaskDelay(instructions[i][1]);

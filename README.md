@@ -10,8 +10,7 @@ Remember before launch to #define out any debuging. I.e serial stuff as this won
 
 # Michaels last changes
 
-Changed location of ESPtime defination to its own location  
-Changed LTE_Publish to accept a topic parameter  
+Added dali sequencing 
 
 # Roberts last changes
 
