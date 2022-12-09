@@ -20,6 +20,7 @@ Branch - main
 #include "ESPtime.h"
 #include "logControl.h"
 #include <SoftwareSerial.h>
+#include <ArduinoJson.h>
 
 static const byte rxPin = 33;
 static const byte txPin = 34;
@@ -31,9 +32,10 @@ static const int low = 20;
 static const int off = 5; 
 static int currentLightLevel = 0;
 
-static const int instructions = 4;
-int lightTime[instructions][2];
+int size;
+int instructions[][2];
 bool daliTestSwitchFlag = false; 
+TaskHandle_t *daliSequence; 
 
 #ifdef ACTIVATE_BY_TIME
 //change these to change the activation times 
@@ -144,16 +146,29 @@ void daliINIT(void){
     
 }
 
-// void daliTestSwitchInit(int lightTimeAWS[4][2]){
-//     lightTime = lightTimeAWS;
-// }
+void daliTestSwitchInit(StaticJsonDocument<200> sequence){
+    
+    if (daliTestSwitchFlag) vTaskDelete(daliSequence);
 
-// void daliTestSwitch(void* paramters){
-//     for(int i = 0; i < instructions; i++){
-//         daliSend(lightTime[0][0]);
-//         vTaskDelay(lightTime[0][1]);
-//     }
-// }
+    size = sequence["Size"];
+    for (int i = 0; i < size; i++){
+        char index = (char)i;
+        instructions[i][0] = sequence[index][0]; 
+        instructions[i][1] = sequence[index][1]; 
+    }
+
+    if (xTaskCreate(daliTestSwitch, "dali test sequencing", 2048, instructions, 2, daliSequence) == pdTRUE) daliTestSwitchFlag = true;
+}
+
+void daliTestSwitch(void* paramters){
+    
+    while(daliTestSwitchFlag){ 
+        for(int i = 0; i < size; i++){
+            daliSend(instructions[i][0]);
+            vTaskDelay(instructions[i][1]);
+        }
+    }
+}
 
 
 void daliSend(int lightLevel){

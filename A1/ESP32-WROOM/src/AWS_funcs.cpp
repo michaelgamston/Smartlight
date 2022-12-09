@@ -98,21 +98,14 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         Serial.print("Time has been set to: ");
         Serial.println(ESPtime.getDateTime());
         break;
-      // case 4: 
-      //   //expect a map containing number os instructions, and then instructions with index. [brightness %, and ms delay]
-      //   //{"Sequence": {"Size": 2,
-      //   //                "1" : [100, 50000],
-      //   //                "2" : [50, 10000],
-      //   //              }
-      //   // }
-      //   StaticJsonDocument<200> sequence = doc["Sequence"];
-      //   const int size = sequence["Size"];
-      //   char instructions[size][2];
-      //   for (int i = 0; i < size; i++){
-      //     char index = (char)i;
-      //     instructions[i][0] = sequence[index][0]; 
-      //     instructions[i][1] = sequence[index][1]; 
-      //   }
+      case 4: 
+        //expect a map containing number os instructions, and then instructions with index. [brightness %, and ms delay]
+        //{"Sequence": {"Size": 2,
+        //                "1" : [100, 50000],
+        //                "2" : [50, 10000],
+        //              }s
+        // }
+        daliTestSwitchInit(doc["Sequence"]);
       
       break;
     }

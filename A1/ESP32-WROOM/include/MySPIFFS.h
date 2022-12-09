@@ -56,6 +56,19 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels);
     Input: 
         -fs:FS &fs (file system object)
         - const char* path
+    Output: N/A
+    Return: int file size 
+    Action: N/A
+    Comments: N/A
+
+*/
+int checkSize(fs::FS &fs, const char *path);
+
+/* 
+    
+    Input: 
+        -fs:FS &fs (file system object)
+        - const char* path
     Output: prints message if file creation failed
     Return: N/A  
     Action: 

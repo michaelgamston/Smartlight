@@ -19,9 +19,11 @@ Branch - main
 
 #pragma once
 
+#include <ArduinoJson.h>
+
 extern bool daliTestSwitchFlag; 
 
-#define ACTIVATE_BY_TIME
+//#define ACTIVATE_BY_TIME
 
 //complete development on this feature, use ACTIVATE_BY_TIME
 //#define ACTIVATE_BY_MOTION 
@@ -69,30 +71,30 @@ void daliChangeFlagStatus(bool status);
 void daliTimeActivation(void* parameters);
 #endif
 
-// /* 
+/* 
     
-//     Input: int *lightTime 
-//     Output: sets the lightTime array for use in the thread
-//     Return: N/A  
-//     Action: 
-//         - creates thread for daliTestSwitch
-//     Comments: N/A
+    Input: int *lightTime 
+    Output: sets the lightTime array for use in the thread
+    Return: N/A  
+    Action: 
+        - creates thread for daliTestSwitch
+    Comments: N/A
 
-// */
-// void daliTestSwitchInit(int lightTime[][2]);
+*/
+void daliTestSwitchInit(StaticJsonDocument<200> sequence);
 
-// /* 
+/* 
     
-//     Input: int *lightTime 
-//     Output: sends selected light levels through to the dali controler 
-//     Return: N/A  
-//     Action: 
-//         - runs through the given array 
-//         - send a light level from the array and the waits the given time before sending the next 
-//     Comments: N/A
+    Input: int *lightTime 
+    Output: sends selected light levels through to the dali controler 
+    Return: N/A  
+    Action: 
+        - runs through the given array 
+        - send a light level from the array and the waits the given time before sending the next 
+    Comments: N/A
 
-// */
-// void daliTestSwitch(void* parameters);
+*/
+void daliTestSwitch(void* parameters);
 
 /* 
     
