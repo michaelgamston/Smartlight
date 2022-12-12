@@ -3,11 +3,6 @@ Remember before launch to #define out any debuging. I.e serial stuff as this won
 
 # TODO 
 
-- [ ] Save all certs in SPIFFS, get rid of connect.h 
-- [ ] Get rid of USE_WIFI sections 
-- [ ] Complete testing 
-
-
 # Michaels last changes
 
 Added dali sequencing 

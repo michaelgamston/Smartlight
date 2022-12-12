@@ -22,8 +22,8 @@ Branch - main
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
 
-static const byte rxPin = 33;
-static const byte txPin = 34;
+static const byte rxPin = 32;
+static const byte txPin = 33;
 
 static SoftwareSerial softSerial (rxPin, txPin);
 
@@ -32,10 +32,10 @@ static const int low = 20;
 static const int off = 5; 
 static int currentLightLevel = 0;
 
-int size;
-int instructions[][2];
 bool daliSequenceFlag = false; 
-TaskHandle_t *daliSequenceHandle; 
+static TaskHandle_t sequenceTask; 
+static QueueHandle_t sequenceQueue;
+static SemaphoreHandle_t daliMutex;
 
 #ifdef ACTIVATE_BY_TIME
 //change these to change the activation times 
@@ -148,24 +148,108 @@ void daliINIT(void){
 
 void daliSequenceInit(StaticJsonDocument<200> sequence){
     
-    if (daliSequenceFlag) vTaskDelete(daliSequence);
+    if (daliSequenceFlag) { 
+        Serial.println("deleting previous dali sequence rtos elements");
+        vQueueDelete(sequenceQueue);
+        vTaskDelete(sequenceTask);
+        vSemaphoreDelete(daliMutex);
+        daliSequenceFlag = false;        
+    }
+    
+    daliMutex = xSemaphoreCreateMutex();
+    BaseType_t queueCheckOne;
+    BaseType_t queueCheckTwo;
+    BaseType_t taskCheck;
+    int size = sequence["Size"];
+    Serial.println("variables created");
 
-    size = sequence["Size"];
-    for (int i = 0; i < size; i++){
-        char index = (char)i;
-        instructions[i][0] = sequence[index][0]; 
-        instructions[i][1] = sequence[index][1]; 
+    xSemaphoreTake(daliMutex, portMAX_DELAY);
+    sequenceQueue = xQueueCreate(size*2, sizeof(int));
+    taskCheck = xTaskCreatePinnedToCore(daliSequence, "dali test sequencing", 2048, (void *) size, 1, &sequenceTask, 0);
+    Serial.println("rtos objects created");
+
+    //SEQUENCE IS GIVING OUT STRANGE RESULTS.. LOOK INTO THIS
+    if(taskCheck == pdTRUE && uxQueueSpacesAvailable(sequenceQueue) == size*2){
+        // change this so it's only set if every thing works 
+        for (int i = 0; i < size; i ++){
+            int lightInstruction = sequence[i][0];
+            int delayInstruction = sequence[i][1];
+            Serial.print(lightInstruction);
+            Serial.print(" ");
+            Serial.println(delayInstruction);
+            queueCheckOne = xQueueSend(sequenceQueue, &lightInstruction, portMAX_DELAY);
+            queueCheckTwo = xQueueSend(sequenceQueue, &delayInstruction, portMAX_DELAY);
+            // need a better check here, if anything failes everything needs to deleted
+            if(queueCheckOne == pdFALSE || queueCheckTwo == pdFALSE){
+                Serial.println("queue send failed");
+                vTaskDelete(sequenceTask);
+                break;
+            }
+        }
+        //check should account for this too
+        xSemaphoreGive(daliMutex);
+        daliSequenceFlag = true;
+        Serial.println("dali init complete");
+        Serial.print((uxQueueMessagesWaiting(sequenceQueue) / 2));
+        Serial.println(" instructions queued");
+        
+    }else{
+        if(taskCheck == pdTRUE) vTaskDelete(sequenceTask);
+        Serial.println("dali sequence init failed");
     }
 
-    if (xTaskCreate(daliSequence, "dali test sequencing", 2048, instructions, 2, daliSequenceHandle) == pdTRUE) daliSequenceFlag = true;
+    
+
 }
 
-void daliSequence(void* paramters){
+void daliSequence(void* parameters){
     
-    while(daliSequenceFlag){ 
+    int size = (int) parameters;
+    Serial.println(size);
+    int instructions[size][2];
+    //Task must wait for daliSequenceInit to finish
+    xSemaphoreTake(daliMutex, portMAX_DELAY);
+    Serial.println("mutex taken");
+    if(daliSequenceFlag){
+        Serial.println("Task entered setup");
+        int stop = uxQueueMessagesWaiting(sequenceQueue);
+        Serial.print(stop);
+        Serial.println(" instructions waiting");
         for(int i = 0; i < size; i++){
-            daliSend(instructions[i][0]);
-            vTaskDelay(instructions[i][1]);
+            if (xQueueReceive(sequenceQueue, &instructions[i][0], 10) == pdFALSE) {
+                Serial.print("queue receive fail on "); 
+                Serial.println(i);
+                while(1);
+            }
+            if (xQueueReceive(sequenceQueue, &instructions[i][1], 10) == pdFALSE) {
+                Serial.print("queue receive fail on "); 
+                Serial.println(i); 
+                while(1);
+            }
+        }
+
+        if (uxQueueMessagesWaiting(sequenceQueue) == 0){
+            vQueueDelete(sequenceQueue);
+            Serial.println("Queue has been read and deleted");
+            
+        }else {
+            daliSequenceFlag = false;
+            Serial.println("Queue read for dali sequence failed");
+        }    
+
+        if(daliSequenceFlag) Serial.println("setup finished, dali seqeuence ready");
+        for (int i = 0; i < size; i++){
+            Serial.print(instructions[i][0]);
+            Serial.println(instructions[i][1]);
+
+        }
+        while(daliSequenceFlag){ 
+            while(1);
+            for(int i = 0; i < size; i++){
+                daliSend(instructions[i][0]);
+                vTaskDelay(instructions[i][1]);
+                Serial.println("instruction sent");
+            }
         }
     }
 }

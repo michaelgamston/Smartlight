@@ -36,7 +36,7 @@ Branch - main
 //#define MODEM_PWRKEY 12
 
 //SIM credentails 
-const char apn[] = "eezone";
+const char apn[] = "everywhere";
 const char gprsUser[] = "eesecure";
 const char gprsPass[] = "password";
 

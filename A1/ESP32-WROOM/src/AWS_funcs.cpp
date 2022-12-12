@@ -82,15 +82,15 @@ static SemaphoreHandle_t mutex;
     PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
-void checkMQTT(void* parameters){
-  while(1){
+void checkMQTT(){
+  //while(1){
     if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
       if(client.connected()) client.loop();
       else connectAWS();
       xSemaphoreGive(mutex);
     }
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
+ // }
 }
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
@@ -122,8 +122,8 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
       case 4: 
         //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
         //{"Sequence": {"Size": 2,
-        //                "1" : [100, 50000],
-        //                "2" : [50, 10000],
+        //                1 : [100, 50000],
+        //                2 : [50, 10000],
         //              }s
         // }
         daliSequenceInit(doc["Sequence"]);
@@ -291,7 +291,7 @@ bool LTE_connect()
     }
 
     Serial.println("Connecting GPRS..");
-    modem.gprsConnect("three.co.uk");
+    modem.gprsConnect(apn, gprsUser, gprsPass);
     if (modem.isGprsConnected()) { 
         Serial.println("GPRS connected");
     }

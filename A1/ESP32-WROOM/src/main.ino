@@ -40,7 +40,7 @@ void setup()
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
  
-  //connectAWS();
+  connectAWS();
   daliINIT();
   init_spi();
   //logFileInit();
