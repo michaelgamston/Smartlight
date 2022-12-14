@@ -1,27 +1,16 @@
-# Comments 
-Remember before launch to #define out any debuging. I.e serial stuff as this won't have function in final MVP product. 
+# Overview 
 
-# TODO 
+This is Software version 0.1
 
-# Michaels last changes
-
-added task creation or checkMQTT with flag check to connectAWS()
-completed work with dali sequecing 
-
-# Roberts last changes
-
-Added some new mesh related functions  
-Fixed mqtt related problems to sending large files (because of mqtt's packet size limits) 
-
-# Structure
-
-Two platformio projects:
-
--ESP32-CAM 
-
--ESP32-WROVER LILYGO
-
-Both projects are using the Ardunio Framework. These files will contain our functionality for the MVP. 
+Features:
+- log file handling
+- SPI comms
+- Image handling
+- AWS light level commands 
+- DALI contol using UART 
+- Time keeping 
+- SPIFFS 
+- AWS communication
 
 ## Serial Comms Wiring
 
@@ -32,12 +21,3 @@ Both projects are using the Ardunio Framework. These files will contain our func
 | GPIO23     | GPIO13         | COPI    |
 | GPIO19     | GPIO12         | CIPO    |
 
-# ESP32-CAM
-
-Functional MVP code. Sends image in byte array with check byte at position one using SPI. Ready for deloyment. 
-
-# ESP32-WROVER LILYGO
-
-Recieves image from CAM and then adds ID info to byte array before sending to AWS.
-Has local wifi mesh capabilities, can send and receive messages to and from the mesh.
-DALI functionality still in progress.
