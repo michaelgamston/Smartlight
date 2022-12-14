@@ -3,3 +3,5 @@
 #include <ESP32Time.h>
 
 extern ESP32Time ESPtime;
+
+extern bool timeSetFlag; 

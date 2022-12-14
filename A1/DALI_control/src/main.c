@@ -106,7 +106,7 @@ void blink(uint8_t lightLevel);
 
 #else
 //  const int OnboardLedPin = 33; // This is supposed to be the Red Led on the bottom
-  	const int OnboardLedPin = 4;  // This is (VERY BRIGHT) white LED on the top (the Flash)
+  	const int OnboardLedPin = 2;  // This is (VERY BRIGHT) white LED on the top (the Flash)
 // My dev board
 //  const int buttonPin = 14;     // the number of the pushbutton pin
 // The SMT prototype board - Iss2
@@ -613,7 +613,7 @@ void UART(void* parameters){
 			xSemaphoreTake(mutex, portMAX_DELAY);
 			if(*data < 10U) newLightLevel = 0U;
 			else newLightLevel = *data;
-			blink(newLightLevel);
+			//blink(newLightLevel);
 			activateClause = true;
 			xSemaphoreGive(mutex);
 		}
@@ -641,7 +641,7 @@ void mainSmartlightLoop(void* parameters){
 void app_main(void)
 {
   /* Delay for 4 seconds, give chance for debug monitor to catch up */
-  SMT_Cubik_delay_function(4000);
+  SMT_Cubik_delay_function(0);
 
 	// Dump out the file version information
 	vDumpVersionInformation();

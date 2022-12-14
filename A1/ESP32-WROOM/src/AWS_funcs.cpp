@@ -30,20 +30,8 @@ const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
 const char* AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
 const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
 
-/*
-Use this mutex to control any functions that would connect, subscribe
-or publish to AWS using MQTT, since PubSubClient library isn't thread safe
-
-Add the following code to prevent undesired behaviours caused by this:
-
-if(xSemaphoreTake(mutex, delayInMS) == pdTRUE) {
-  ...........................
-  add your code here
-  ...........................
-  xSemaphoreGive(mutex);
-}
-*/
 static SemaphoreHandle_t mutex;
+static bool callbackFlag = false; 
 
 #ifdef SPIFFSdef
   //SPIFFS credentials
@@ -82,15 +70,15 @@ static SemaphoreHandle_t mutex;
     PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
 #endif
 
-void checkMQTT(){
-  //while(1){
+void checkMQTT(void* parameters){
+  while(1){
     if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
       if(client.connected()) client.loop();
       else connectAWS();
       xSemaphoreGive(mutex);
     }
     vTaskDelay(1000 / portTICK_PERIOD_MS);
- // }
+  }
 }
 
 void messageHandler(char* topic, byte* payload, unsigned int length)
@@ -108,25 +96,42 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         Serial.printf(doc["message"]);
         break;
         // OTA update instrucion
+
       case 2:
-        daliSend(doc["LightLevel"]);
+        daliSelectMode(CustomLevelActivation);
+        daliSend(doc["lightLevel"]);
         break;
-      case 3:
-        // With this line here, it wont let me assign a struct from json to variable 'time' 
+
+      case 3: 
+        char* mode = doc["mode"];
+        if (mode == "high") daliSelectMode(High);
+        else if (mode == "low") daliSelectMode(Low);
+        else if (mode == "standby") daliSelectMode(Standby);
+        else if (mode == "timeActivation") daliSelectMode(TimeActivation);
+        else if (mode == "motionActivation") daliSelectMode(MotionActivation);
+
+      case 4:
+        // call this based on topic not instruction
+        // put this in one function in ESPtime 
         struct tm timeinfo;
         strptime(doc["time"], "%FT%TZ", &timeinfo);
         ESPtime.setTimeStruct(timeinfo);
         Serial.print("Time has been set to: ");
         Serial.println(ESPtime.getDateTime());
+        timeSetFlag = true;
         break;
-      case 4: 
+
+      case 5: 
         //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
-        //{"Sequence": {"Size": 2,
-        //                1 : [100, 50000],
-        //                2 : [50, 10000],
-        //              }s
+        // {
+        //   "instruction" : 4,
+        //   "sequence": {
+        //      "size": 2,
+        //      "instructionList" : [100, 1000, 50, 1000]
+        //   }
         // }
-        daliSequenceInit(doc["Sequence"]);
+        daliSelectMode(SequenceActivation);
+        daliSequenceInit(doc["sequence"]);
       
       break;
     }
@@ -248,6 +253,7 @@ bool LTE_connect()
 
     for(int retry=0; retry<2; retry++)
     {
+        vTaskDelay(1000/ portTICK_PERIOD_MS);
         modemPowerOn();
         int i = 0;
         for(i=0; i<100; i++)
@@ -330,6 +336,19 @@ bool connectAWS()
                 client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
                 client.subscribe(AWS_IOT_SUBSCRIBE_TIME_TOPIC);
                 Serial.println("CONNECTED AWS IOT");
+
+                if(!callbackFlag){
+                    if (xTaskCreatePinnedToCore(
+                      checkMQTT,
+                      "MQTT callback",
+                      8192,
+                      NULL,
+                      2,
+                      NULL,
+                      1
+                    ) == pdTRUE) Serial.println("checkMQTT Task Created");
+                    callbackFlag = true;
+                  }
                 return true;
             }
             else
@@ -344,6 +363,8 @@ bool connectAWS()
         Serial.println("Already connected to AWS IOT");
         return true;
     }
+
+    
 
     return false;
 }

@@ -1,6 +1,6 @@
 /*
                                                                   *****FILE HEADER*****
-File Name - daliSend.ino
+File Name - daliSend.cpp
 
 Author/s - Michael Gamston
 
@@ -8,7 +8,8 @@ Description - Functions for sending a command to our dali control unit
 
 Hardware - A0.4
 
-Comments - 
+Comments - add where the commad come from when it's changes (motion, time, aws, sequence)
+         - motionActivation is still buggy and requres work  
 
 Libraries 
     
@@ -22,36 +23,70 @@ Branch - main
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
 
-static const byte rxPin = 32;
-static const byte txPin = 33;
-
+//Software serial 
+static const byte rxPin = 33;
+static const byte txPin = 32;
 static SoftwareSerial softSerial (rxPin, txPin);
 
+// Light level 
+//currently anything 99 is full brightness, 10 and below turns the lamp off 
 static const int high = 99;
 static const int low = 20;
-static const int off = 5; 
+static const int standby = 5; 
+static daliMode currentMode = Standby;
 static int currentLightLevel = 0;
 
+// Dali Sequence activation
 bool daliSequenceFlag = false; 
+bool sequenceQueueFlag = false;
+bool sequenceTaskFlag = false;
 static TaskHandle_t sequenceTask; 
 static QueueHandle_t sequenceQueue;
-static SemaphoreHandle_t daliMutex;
 
-#ifdef ACTIVATE_BY_TIME
-//change these to change the activation times 
-static const int activationTimeHours = 15;
-static const int activationTimeMins = 17;
-static const int deactivationTimeHours = 15;
-static const int deactivationTimeMins = 18;
-#endif
+// Time activation 
+static TaskHandle_t timeTask;
+bool timeTaskFlag = false;
+static int activationTimeHours = 15;
+static int activationTimeMins = 17;
+static int deactivationTimeHours = 15;
+static int deactivationTimeMins = 18;
 
-#ifdef ACTIVATE_BY_MOTION
+//Motion activation
+static TaskHandle_t motionTask;
+bool motionTaskFlag = false;
 static bool activationFlag = false;
 static bool commandSentFlag = false; 
 static SemaphoreHandle_t mutex;
 
 
-void checkActivationFlag(void* parameters){
+void daliINIT(void){
+
+    Serial.println("dali init");
+
+    pinMode(rxPin, INPUT);
+    pinMode(txPin, OUTPUT);
+    softSerial.begin(115200);
+
+    Serial.println("dali init complete");
+    
+}
+
+void daliMotionInit(void){
+
+    mutex = xSemaphoreCreateMutex();
+    Serial.println("Creating Tasks");
+    if (xTaskCreatePinnedToCore(
+        daliCheckActivationFlag, 
+        "dali activation chech", 
+        1024, 
+        NULL, 
+        1, 
+        &motionTask,
+        0
+    ) == pdTRUE) motionTaskFlag = true;
+}
+
+void daliCheckActivationFlag(void* parameters){
     while(1){
         Serial.println("checking dali flag status");
         if (activationFlag){
@@ -83,9 +118,27 @@ void daliChangeFlagStatus(bool status){
         xSemaphoreGive(mutex);
     }
 }
-#endif
 
-#ifdef ACTIVATE_BY_TIME
+
+void daliTimeInit(void ){
+
+    if(timeSetFlag){
+        Serial.println("Creating Tasks");
+        if (xTaskCreatePinnedToCore( 
+            daliTimeActivation,
+            "checking for light event times",
+            2048,
+            NULL,
+            1,
+            &timeTask,
+            0
+        ) == pdTRUE) timeTaskFlag = true;
+    }else{
+        Serial.println("ESPtime has not been set. Unable to start time task");
+    }
+
+}
+
 void daliTimeActivation(void* parameters){
     //add time comparision, create thread, change currently level, send to dali
     int hours;
@@ -97,158 +150,146 @@ void daliTimeActivation(void* parameters){
             daliSend(high);
             currentLightLevel = high;
         }
-        else if(hours == deactivationTimeHours && mins == deactivationTimeMins && currentLightLevel != off){
-            daliSend(off);
-            currentLightLevel = off;
+        else if(hours == deactivationTimeHours && mins == deactivationTimeMins && currentLightLevel != standby){
+            daliSend(standby);
+            currentLightLevel = standby;
         }
         vTaskDelay(1/ portTICK_PERIOD_MS);
     }
 }
 
-#endif
+void daliSelectMode(daliMode newMode){
 
-void daliINIT(void){
+    // clear tasks required by mode change
+    if (currentMode == SequenceActivation) daliClearSequence();
+    else if (currentMode == TimeActivation && timeTaskFlag) vTaskDelete(timeTask); // not tested
+    else if (currentMode == MotionActivation && motionTaskFlag) vTaskDelete(motionTask); // not tested
 
-    Serial.println("dali init");
+    // find new mode and do any set up 
+    switch (newMode) {
+        case High:
+            daliSend(high);
+            currentMode = High;
+            break;
+        case Low:
+            daliSend(low);
+            currentMode = Low;
+            break;
+        
+        case Standby:
+            daliSend(standby);
+            currentMode = Standby;
+            break;
+        
+        case CustomLevelActivation:
+            currentMode = CustomLevelActivation;
+            break;
+        
+        case TimeActivation:
+            //need to add deactication mode to timeActivation, also look into 
+            // delete task that controlls time activation -- keep variables so it can be reactivated
+            daliTimeInit();
+            currentMode = TimeActivation;
+            break;
 
-    pinMode(rxPin, INPUT);
-    pinMode(txPin, OUTPUT);
-    softSerial.begin(115200);
+        case MotionActivation:
+            //THIS DOES NOT WORK. NEEDS FINISHING BEFORE THIS MODE CAN BE USED
+            daliMotionInit();
+            currentMode = MotionActivation;
+            break;
+        
+        case SequenceActivation:
+        currentMode = SequenceActivation; 
+        break;       
+    }
+}
 
-#ifdef ACTIVATE_BY_MOTION
+void daliClearSequence(void){
 
-    mutex = xSemaphoreCreateMutex();
-    Serial.println("Creating Tasks");
-    xTaskCreate(
-        checkActivationFlag, 
-        "dali activation chech", 
-        1024, 
-        NULL, 
-        1, 
-        NULL
-    );
-
-#endif
-#ifdef ACTIVATE_BY_TIME
-
-    Serial.println("Creating Tasks");
-    xTaskCreate( 
-        daliTimeActivation,
-        "checking for light event times",
-        2048,
-        NULL,
-        1,
-        NULL
-    );
-
-#endif
-    Serial.println("dali init complete");
+    Serial.println("deleting any previous dali sequence rtos elements");
+    if(sequenceQueueFlag) { 
+        Serial.println("deleting queue"); 
+        vQueueDelete(sequenceQueue); 
+        sequenceQueueFlag = false;
+    }
+    if(sequenceTaskFlag) { 
+        Serial.println("deleting task"); 
+        vTaskDelete(sequenceTask); 
+        sequenceTaskFlag = false;
+    }
+    daliSequenceFlag = false;        
     
 }
 
-void daliSequenceInit(StaticJsonDocument<200> sequence){
-    
-    if (daliSequenceFlag) { 
-        Serial.println("deleting previous dali sequence rtos elements");
-        vQueueDelete(sequenceQueue);
-        vTaskDelete(sequenceTask);
-        vSemaphoreDelete(daliMutex);
-        daliSequenceFlag = false;        
-    }
-    
-    daliMutex = xSemaphoreCreateMutex();
+bool daliSequenceInit(StaticJsonDocument<200> sequence){
+
     BaseType_t queueCheckOne;
     BaseType_t queueCheckTwo;
-    BaseType_t taskCheck;
-    int size = sequence["Size"];
-    Serial.println("variables created");
 
-    xSemaphoreTake(daliMutex, portMAX_DELAY);
+    int size = sequence["size"];
     sequenceQueue = xQueueCreate(size*2, sizeof(int));
-    taskCheck = xTaskCreatePinnedToCore(daliSequence, "dali test sequencing", 2048, (void *) size, 1, &sequenceTask, 0);
-    Serial.println("rtos objects created");
 
-    //SEQUENCE IS GIVING OUT STRANGE RESULTS.. LOOK INTO THIS
-    if(taskCheck == pdTRUE && uxQueueSpacesAvailable(sequenceQueue) == size*2){
-        // change this so it's only set if every thing works 
-        for (int i = 0; i < size; i ++){
-            int lightInstruction = sequence[i][0];
-            int delayInstruction = sequence[i][1];
-            Serial.print(lightInstruction);
-            Serial.print(" ");
-            Serial.println(delayInstruction);
+    if(uxQueueSpacesAvailable(sequenceQueue) == size*2){
+        sequenceQueueFlag = true;
+
+        for (int i = 0; i < (size*2); i += 2){
+            int lightInstruction = sequence["instructionList"][i];
+            int delayInstruction = sequence["instructionList"][i+1];
             queueCheckOne = xQueueSend(sequenceQueue, &lightInstruction, portMAX_DELAY);
             queueCheckTwo = xQueueSend(sequenceQueue, &delayInstruction, portMAX_DELAY);
-            // need a better check here, if anything failes everything needs to deleted
+
             if(queueCheckOne == pdFALSE || queueCheckTwo == pdFALSE){
                 Serial.println("queue send failed");
-                vTaskDelete(sequenceTask);
-                break;
+                daliClearSequence();
+                return false;
             }
         }
-        //check should account for this too
-        xSemaphoreGive(daliMutex);
+
         daliSequenceFlag = true;
-        Serial.println("dali init complete");
-        Serial.print((uxQueueMessagesWaiting(sequenceQueue) / 2));
-        Serial.println(" instructions queued");
-        
+
+        if(xTaskCreatePinnedToCore(daliSequence, "dali test sequencing", 4096, (void*)size, 1, &sequenceTask, 0) == pdTRUE){
+            sequenceTaskFlag = true;
+            return true;
+            }
     }else{
-        if(taskCheck == pdTRUE) vTaskDelete(sequenceTask);
+        daliClearSequence();
         Serial.println("dali sequence init failed");
+        return false;
     }
 
+    return false;
     
-
 }
 
 void daliSequence(void* parameters){
-    
     int size = (int) parameters;
-    Serial.println(size);
     int instructions[size][2];
     //Task must wait for daliSequenceInit to finish
-    xSemaphoreTake(daliMutex, portMAX_DELAY);
-    Serial.println("mutex taken");
-    if(daliSequenceFlag){
-        Serial.println("Task entered setup");
-        int stop = uxQueueMessagesWaiting(sequenceQueue);
-        Serial.print(stop);
-        Serial.println(" instructions waiting");
+    if(daliSequenceFlag){;
         for(int i = 0; i < size; i++){
             if (xQueueReceive(sequenceQueue, &instructions[i][0], 10) == pdFALSE) {
-                Serial.print("queue receive fail on "); 
+                Serial.print("queue receive lightlevel fail on "); 
                 Serial.println(i);
-                while(1);
+                daliSequenceFlag = false;
             }
+
             if (xQueueReceive(sequenceQueue, &instructions[i][1], 10) == pdFALSE) {
-                Serial.print("queue receive fail on "); 
+                Serial.print("queue receive delay fail on "); 
                 Serial.println(i); 
-                while(1);
+                daliSequenceFlag = false;
             }
         }
-
         if (uxQueueMessagesWaiting(sequenceQueue) == 0){
             vQueueDelete(sequenceQueue);
-            Serial.println("Queue has been read and deleted");
-            
+            sequenceQueueFlag = false;  
         }else {
             daliSequenceFlag = false;
             Serial.println("Queue read for dali sequence failed");
         }    
-
-        if(daliSequenceFlag) Serial.println("setup finished, dali seqeuence ready");
-        for (int i = 0; i < size; i++){
-            Serial.print(instructions[i][0]);
-            Serial.println(instructions[i][1]);
-
-        }
         while(daliSequenceFlag){ 
-            while(1);
             for(int i = 0; i < size; i++){
                 daliSend(instructions[i][0]);
                 vTaskDelay(instructions[i][1]);
-                Serial.println("instruction sent");
             }
         }
     }
@@ -261,7 +302,7 @@ void daliSend(int lightLevel){
     if(lightLevel != currentLightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
-        //updateLogFile(lightLevel);
+        updateLogFile(lightLevel);
         Serial.print("New light level sent: ");
         Serial.println(currentLightLevel);
     }else {
@@ -269,6 +310,5 @@ void daliSend(int lightLevel){
         Serial.print(lightLevel);
         Serial.println(" recieved but not sent");
     }
-
     Serial.println();
 }

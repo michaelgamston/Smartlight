@@ -35,7 +35,7 @@ Branch - main
 
 void setup()
 {
-  SPIFFS.begin();
+  if(SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) Serial.println("SPIFFS formatted");
   //createFile(SPIFFS, "/LogFile.txt");
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
@@ -43,7 +43,7 @@ void setup()
   connectAWS();
   daliINIT();
   init_spi();
-  //logFileInit();
+  logFileInit();
   //mesh_init();
 
   //logFileInit();
@@ -56,8 +56,6 @@ void loop()
 {
 
   //mesh_update();
-  checkMQTT();
-  //LTE_publish("ana are mere", "TestRX");
-  //spiLoopPeripheral();
+  spiLoopPeripheral();
   //vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

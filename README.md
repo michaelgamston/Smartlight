@@ -5,7 +5,8 @@ Remember before launch to #define out any debuging. I.e serial stuff as this won
 
 # Michaels last changes
 
-Added dali sequencing 
+added task creation or checkMQTT with flag check to connectAWS()
+completed work with dali sequecing 
 
 # Roberts last changes
 

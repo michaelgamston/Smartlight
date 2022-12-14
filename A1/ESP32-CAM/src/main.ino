@@ -29,7 +29,7 @@ const uint32_t IMAGE_SIZE = H * W;
 
 static const int longFlash = 500;
 static const int shortFlash = 100;
-static const int LED = 4;
+static const int LED = 2;
 
 void flashLED(int flashLength){
   digitalWrite(LED, HIGH);

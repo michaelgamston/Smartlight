@@ -23,12 +23,34 @@ Branch - main
 
 extern bool daliTestSwitchFlag; 
 
+enum daliMode{
+    TimeActivation,
+    MotionActivation,
+    SequenceActivation,
+    High,
+    Low,
+    Standby,
+    CustomLevelActivation
+};
+
 //#define ACTIVATE_BY_TIME
 
 //complete development on this feature, use ACTIVATE_BY_TIME
 //#define ACTIVATE_BY_MOTION 
 
-#ifdef ACTIVATE_BY_MOTION
+/* 
+    
+    Input: N/A
+    Output: N/A
+    Return: N/A  
+    Action: 
+        - initialises pins for software serial and initialises the bus
+    Comments: N/A
+
+*/
+void daliINIT(void);
+
+void daliMotionInit(void);
 
 /* 
     
@@ -55,9 +77,6 @@ void checkActivationFlag(void* parameters);
 */
 void daliChangeFlagStatus(bool status);
 
-#endif
-
-#ifdef ACTIVATE_BY_TIME
 /* 
     
     Input: N/A
@@ -69,7 +88,10 @@ void daliChangeFlagStatus(bool status);
 
 */
 void daliTimeActivation(void* parameters);
-#endif
+
+void daliSelectMode(daliMode newMode);
+
+void daliClearSequence(void);
 
 /* 
     
@@ -81,7 +103,7 @@ void daliTimeActivation(void* parameters);
     Comments: N/A
 
 */
-void daliSequenceInit(StaticJsonDocument<200> sequence);
+bool daliSequenceInit(StaticJsonDocument<200> sequence);
 
 /* 
     
@@ -96,17 +118,6 @@ void daliSequenceInit(StaticJsonDocument<200> sequence);
 */
 void daliSequence(void* parameters);
 
-/* 
-    
-    Input: N/A
-    Output: N/A
-    Return: N/A  
-    Action: 
-        - initialises pins for software serial and initialises the bus
-    Comments: N/A
-
-*/
-void daliINIT(void);
 
 /* 
     
