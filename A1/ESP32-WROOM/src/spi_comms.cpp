@@ -51,13 +51,9 @@ void init_spi(void)
 
  pinMode(CS_1_GPIO_PIN, OUTPUT);
  pinMode(CS_2_GPIO_PIN, OUTPUT);
-//  pinMode(TRP1, INPUT);
-//  pinMode(TRP2, INPUT);
  Serial.println("PinMode");
  digitalWrite(CS_1_GPIO_PIN, HIGH);
  digitalWrite(CS_2_GPIO_PIN, HIGH);
-//  digitalWrite(TRP1, LOW);
-//  digitalWrite(TRP2, LOW);
  Serial.println("digitalWrite");
 // Initialise comms buffer.
 
@@ -141,46 +137,24 @@ void spi_txn(uint8_t peripheral_number, uint16_t data_len)
     Serial.print("Transaction between Controller and Peripheral ");
     Serial.println(peripheral_number);
     hspi->beginTransaction(SPISettings(SPI_BUS_SPEED, MSBFIRST, SPI_MODE0));
-   // Serial.println("Transaction BEGIN");
     enable_spi_peripheral(peripheral_number);
-   // Serial.println("Activate Perhiferal");
     while (spi_buf[0] != 5){
+    // add a timmer here it doesn't get stuck
     hspi->transfer(spi_buf, data_len);
-    //Serial.print(".");
     }
-    //Serial.println("");
     disable_spi_peripheral(peripheral_number);
-    //Serial.println("Disable Perhiferal");
     hspi->endTransaction();
-    //Serial.println("Transaction end");
     spi_buf[7501] = DEVICE_NAME;
     spi_buf[7502] = peripheral_number;
-   //Serial.println("Added meta data");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     Serial.println("Finsihed");
-    //Serial.print("dali activation byte = ");
-    //Serial.println(spi_buf[8191]);
-#ifdef ACTIVATE_BY_MOTION 
-    if(spi_buf[8191] == 1){ 
-      Serial.print("from PERIPHERAL ");
-      Serial.print(peripheral_number);
-      Serial.println(" spi dali send 100");
-      daliChangeFlagStatus(true);
-      }
-    else {
-      Serial.println(" spi dali send 20");
-      daliChangeFlagStatus(false);
-      }
-#endif
  }
 }
 
 void spiLoopPeripheral(void){
     for (int i = 0; i <= 1; i++){
-     //if(digitalRead(TRList[i]) == LOW){ 
       spi_txn((i+1), 8192);
       send_image(spi_buf, SPI_BUFFER_SIZE);
       set_buf();
-      //}else Serial.println("TRP pin high");
     }  
 }

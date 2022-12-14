@@ -28,7 +28,7 @@ Branch - main
 void setup(){
 
     Serial.begin(115200);
-    delay(1000); //allow serial monitor to chatch up after flashing 
+    delay(5000); //allow serial monitor to chatch up after flashing 
     //if formatting fails try again and restart ESP
     if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
         Serial.println("SPIFFS Mount Failed");
@@ -38,13 +38,11 @@ void setup(){
     
     listDir(SPIFFS, "/", 0);
 
-    createFile(SPIFFS, "/logFile.txt");
-    checkFile(SPIFFS, "/logFile.txt");
-    // writeFile(SPIFFS, "/ThingName.txt", THINGNAME);
-    // writeFile(SPIFFS, "/Endpoint.txt", AWS_IOT_ENDPOINT);
-    // writeFile(SPIFFS, "/CAcert.txt", AWS_CERT_CA);
-    // writeFile(SPIFFS, "/CRTcert.txt", AWS_CERT_CRT);
-    // writeFile(SPIFFS, "/Privkey.txt", AWS_CERT_PRIVATE);
+    writeFile(SPIFFS, "/ThingName.txt", THINGNAME);
+    writeFile(SPIFFS, "/Endpoint.txt", AWS_IOT_ENDPOINT);
+    writeFile(SPIFFS, "/CAcert.txt", AWS_CERT_CA);
+    writeFile(SPIFFS, "/CRTcert.txt", AWS_CERT_CRT);
+    writeFile(SPIFFS, "/Privkey.txt", AWS_CERT_PRIVATE);
 
     listDir(SPIFFS, "/", 0);
     

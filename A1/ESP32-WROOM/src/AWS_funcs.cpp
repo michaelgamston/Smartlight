@@ -17,58 +17,43 @@ Branch - main
 #include "MySPIFFS.h"
 #include "daliSend.h"
 #include "ESPtime.h"
+#include <TinyGsmClient.h>
+#include <SSLClient.h>
 
-// remove all USE_WIFI functions
+#define MODEM_UART_BAUD     115200
+#define PWR_PIN             4
+#define POWER_PIN           25
+#define IND_PIN             36
 
-//#define USE_WIFI
+//SPIFFS credentials
+String THINGNAME;
+String AWS_CERT_CA;
+String AWS_CERT_CRT;
+String AWS_CERT_PRIVATE;
+String AWS_IOT_ENDPOINT;
+
+TinyGsm modem(Serial1);
+TinyGsmClient LTE_client(modem);
+SSLClient LTE_secureClient(&LTE_client);
+PubSubClient client(LTE_secureClient);
 
 //topics 
 const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "Images";
-const char* AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
 const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
 
-const char* AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
+const char* AWS_IOT_SUBSCRIBE_TOPIC = "Instruction";
 const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
 
 static SemaphoreHandle_t mutex;
 static bool callbackFlag = false; 
 
-#ifdef SPIFFSdef
-  //SPIFFS credentials
-  String THINGNAME;
-  String AWS_CERT_CA;
-  String AWS_CERT_CRT;
-  String AWS_CERT_PRIVATE;
-  String AWS_IOT_ENDPOINT;
-
-  void getSPIFFS(){
-    THINGNAME = fileToString(SPIFFS, "/ThingName.txt");
-    AWS_IOT_ENDPOINT = fileToString(SPIFFS, "/Endpoint.txt");
-    AWS_CERT_CA= fileToString(SPIFFS, "/CAcert.txt");
-    AWS_CERT_CRT= fileToString(SPIFFS, "/CRTcert.txt");
-    AWS_CERT_PRIVATE= fileToString(SPIFFS, "/Privkey.txt");  
-  }
-#endif
-
-#ifdef USE_WIFI
-  WiFiClientSecure net = WiFiClientSecure();
-  PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, net);
-#else
-    #include <TinyGsmClient.h>
-    #include <SSLClient.h>
-
-    #define MODEM_UART_BAUD     115200
-    #define PWR_PIN             4
-    #define POWER_PIN           25
-    #define IND_PIN             36
-
-    #define AWS_IOT_PUBLISH_TOPIC   "test"
-
-    TinyGsm modem(Serial1);
-    TinyGsmClient LTE_client(modem);
-    SSLClient LTE_secureClient(&LTE_client);
-    PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
-#endif
+void getSPIFFS(void){
+  THINGNAME = fileToString(SPIFFS, "/ThingName.txt");
+  AWS_CERT_CA = fileToString(SPIFFS, "/CAcert.txt");
+  AWS_CERT_CRT = fileToString(SPIFFS, "/CRTcert.txt");
+  AWS_CERT_PRIVATE = fileToString(SPIFFS, "/Privkey.txt"); 
+  AWS_IOT_ENDPOINT = fileToString(SPIFFS, "/Endpoint.txt");
+}
 
 void checkMQTT(void* parameters){
   while(1){
@@ -98,41 +83,13 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         // OTA update instrucion
 
       case 2:
-        daliSelectMode(CustomLevelActivation);
         daliSend(doc["lightLevel"]);
         break;
-
-      case 3: 
-        char* mode = doc["mode"];
-        if (mode == "high") daliSelectMode(High);
-        else if (mode == "low") daliSelectMode(Low);
-        else if (mode == "standby") daliSelectMode(Standby);
-        else if (mode == "timeActivation") daliSelectMode(TimeActivation);
-        else if (mode == "motionActivation") daliSelectMode(MotionActivation);
-
-      case 4:
+      case 3:
         // call this based on topic not instruction
         // put this in one function in ESPtime 
-        struct tm timeinfo;
-        strptime(doc["time"], "%FT%TZ", &timeinfo);
-        ESPtime.setTimeStruct(timeinfo);
-        Serial.print("Time has been set to: ");
-        Serial.println(ESPtime.getDateTime());
-        timeSetFlag = true;
+        setTime(doc);
         break;
-
-      case 5: 
-        //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
-        // {
-        //   "instruction" : 4,
-        //   "sequence": {
-        //      "size": 2,
-        //      "instructionList" : [100, 1000, 50, 1000]
-        //   }
-        // }
-        daliSelectMode(SequenceActivation);
-        daliSequenceInit(doc["sequence"]);
-      
       break;
     }
 }
@@ -152,80 +109,6 @@ void send_image(uint8_t *im, size_t size)
     xSemaphoreGive(mutex);
   }
 } 
-
-void send_params()
-{
-  StaticJsonDocument<200> doc; // TODO calculate size needed here (in place of 200)
-  // doc["height"] = H;
-  // doc["width"] = W;
-  // doc["blocksize"] = BLOCK_SIZE;
-  doc["device_id"] = "id";
-  char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
-  serializeJson(doc, jsonBuffer); // print to client
-  if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
-    client.publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
-    xSemaphoreGive(mutex);
-  } 
-  Serial.println("PARAMS PUBLISHED");
-}
-
-#ifdef USE_WIFI
-
-bool connectAWS()
-{
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  // wifi connectivity is acheived with the following 14 lines
-  //wifi station mode (standard wifi connection mode)
-  WiFi.mode(WIFI_STA);
-  //pass wifi credentails for connection
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  Serial.println("CONNECTING TO Wi-Fi");
-
-  // while wifi isnt connected print message and wait for connection before moving on 
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    Serial.print(".");
-  }
-
-#ifdef SPIFFSdef
-  getSPIFFS();
-#endif
-
-  // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA.c_str());
-  Serial.println("CA set");
-  net.setCertificate(AWS_CERT_CRT.c_str());
-  Serial.println("CRT set");
-  net.setPrivateKey(AWS_CERT_PRIVATE.c_str());
-  Serial.println("Priv key set");
-
-  // Connect to the MQTT broker on the AWS endpoint we defined earlier
-  // Create a message handler
-
-  Serial.println("CONNECTING TO AWS IOT");
-
-  while (!client.connect(THINGNAME.c_str()))
-  {
-    Serial.print(".");
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-  }
-
-  if (!client.connected())
-  {
-    Serial.println("AWS IoT TIMEOUT!");
-    return false;
-  }
-
-  // Subscribe to a topic
-  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-
-  Serial.println("AWS IoT TOPIC SUBSCRIBED");
-  return true;
-}
-
-#else
 
 // PWR_PIN : This Pin is the PWR-KEY of the SIM7600
 // The time of active low level impulse of PWRKEY pin to power on module 500 ms
@@ -318,17 +201,19 @@ bool connectAWS()
 {
     static bool LTE_ready = false;
     mutex = xSemaphoreCreateMutex();
-
+    getSPIFFS();
     if((LTE_ready == false) || (client.connected() == false) )
     {
         while(!LTE_ready)
           LTE_ready = LTE_connect();
-
         LTE_secureClient.setCACert(AWS_CERT_CA.c_str());
         LTE_secureClient.setCertificate(AWS_CERT_CRT.c_str());
         LTE_secureClient.setPrivateKey(AWS_CERT_PRIVATE.c_str());
-        Serial.println("Certs set");
+
+        client.setServer(AWS_IOT_ENDPOINT.c_str(), 8883);
+        client.setCallback(messageHandler);
         client.setBufferSize(8192);
+
         for(int i=0; i<10; i++)
         {
              if(client.connect(THINGNAME.c_str()))
@@ -388,4 +273,3 @@ bool LTE_publish(const char *message, const char* topic)
     return false;
 }
 
-#endif

@@ -36,7 +36,6 @@ Branch - main
 void setup()
 {
   if(SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) Serial.println("SPIFFS formatted");
-  //createFile(SPIFFS, "/LogFile.txt");
   Serial.begin(115200);
   Serial1.begin(115200, SERIAL_8N1, PIN_RX, PIN_TX);
  
@@ -44,9 +43,6 @@ void setup()
   daliINIT();
   init_spi();
   logFileInit();
-  //mesh_init();
-
-  //logFileInit();
 
   // Allow time for peripherals to power up.
   vTaskDelay(2000 / portTICK_PERIOD_MS);
@@ -54,8 +50,5 @@ void setup()
 
 void loop()
 {
-
-  //mesh_update();
   spiLoopPeripheral();
-  //vTaskDelay(2000/ portTICK_PERIOD_MS);
 }

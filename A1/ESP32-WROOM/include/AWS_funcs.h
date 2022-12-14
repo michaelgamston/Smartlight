@@ -34,20 +34,20 @@ extern const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC;
 extern const char* AWS_IOT_SUBSCRIBE_TOPIC;
 extern const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC;
 
-#ifdef SPIFFSdef
-    
-    /* 
-        
-        Input: N/A
-        Output: Fills AWS certification variables 
-        Return: N/A  
-        Action: 
-            - uses eSPIFFS to read certs from SPIFFS memory  
-        Comments: N/A
 
-    */
-    void getSPIFFS();
-#endif
+    
+/* 
+    
+    Input: N/A
+    Output: Fills AWS certification variables 
+    Return: N/A  
+    Action: 
+        - uses eSPIFFS to read certs from SPIFFS memory  
+    Comments: N/A
+
+*/
+void getSPIFFS(void);
+
 
 void checkMQTT(void* parameters);
 

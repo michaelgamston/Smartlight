@@ -36,8 +36,8 @@ void updateLogFile(int lightLevel) {
 void logFileToAWS(void* parameters) {
 
     while(1){ 
-        // 60000ms or triggers every minuet
-        vTaskDelay(60000/ portTICK_PERIOD_MS);
+        // every 30 mins 
+        vTaskDelay(1800000/ portTICK_PERIOD_MS);
         if(checkSize(SPIFFS, path) > 0){
             Serial.println("Sending log file to aws");
             String contents = fileToString(SPIFFS, path);
@@ -45,7 +45,11 @@ void logFileToAWS(void* parameters) {
             //opening the file in write mode and not append should clean it contents 
             createFile(SPIFFS, path);
             Serial.println("Log file sent to aws");
-        }    
+        }else{
+            appendFile(SPIFFS, path, "No light level changes recorded.");
+            String contents = fileToString(SPIFFS, path);
+            LTE_publish(contents.c_str(), AWS_IOT_PUBLISH_LOGFILES_TOPIC);
+        }
     }
        
 }
@@ -64,7 +68,7 @@ bool logFileInit(void){
         NULL,
         2,
         NULL,
-        1
+        0
     ) == pdFALSE) {
         Serial.println("Task failed to create");
         return false;
