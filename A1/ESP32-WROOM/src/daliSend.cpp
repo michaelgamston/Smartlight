@@ -158,6 +158,7 @@ void daliTimeActivation(void* parameters){
     }
 }
 
+// not tested 
 void daliSelectMode(daliMode newMode){
 
     // clear tasks required by mode change

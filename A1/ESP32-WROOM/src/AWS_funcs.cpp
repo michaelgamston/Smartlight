@@ -103,6 +103,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         break;
 
       case 3: 
+        //not tested any of these 
         char* mode = doc["mode"];
         if (mode == "high") daliSelectMode(High);
         else if (mode == "low") daliSelectMode(Low);
