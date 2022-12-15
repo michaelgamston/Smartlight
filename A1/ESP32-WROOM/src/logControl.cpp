@@ -25,7 +25,7 @@ static char dateTimeLevelLog[35];
 static const char* path = "/LogFile.txt";
 
 void updateLogFile(int lightLevel) {
-
+    
     const String prefix = ESPtime.getTime();
     sprintf(dateTimeLevelLog, "Level changed to %i. Change occured at %s \n", lightLevel, prefix.c_str());
     Serial.print("log file updated with '");
