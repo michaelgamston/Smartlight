@@ -90,6 +90,16 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         // put this in one function in ESPtime 
         setTime(doc);
         break;
+      case 5: 
+        //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
+        // {
+        //   "instruction" : 4,
+        //   "sequence": {
+        //      "size": 2,
+        //      "instructionList" : [100, 1000, 50, 1000]
+        //   }
+        // }
+        daliSequenceInit(doc["sequence"]);
       break;
     }
 }
