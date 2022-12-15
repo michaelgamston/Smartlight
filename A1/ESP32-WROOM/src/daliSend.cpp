@@ -10,6 +10,7 @@ Hardware - A0.4
 
 Comments - add where the commad come from when it's changes (motion, time, aws, sequence)
          - motionActivation is still buggy and requres work  
+         - finish switch mode
 
 Libraries 
     
