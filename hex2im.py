@@ -14,8 +14,8 @@ from time import process_time_ns
 from PIL import Image
 
 # change this to whichever directory your images are downloaded to
-LOAD_PATH = "~/Documents/AWS/s3_images/"
-SAVE_PATH = "~/Documents/AWS/s3_images/converted/"  # change this to whichever directory you want to dump images
+LOAD_PATH = "~/Pictures/hexImages/"
+SAVE_PATH = "~/Pictures/images/"  # change this to whichever directory you want to dump images
 
 
 def main(file=None, H=None, W=None, show=False):
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         "-n",
         help="path to binary file",
         type=str,
-        default="1660899791341",
+        default="1",
     )
     parser.add_argument("-H", help="Image height dim", type=check_positive)
     parser.add_argument("-W", help="Image width dimension", type=check_positive)
