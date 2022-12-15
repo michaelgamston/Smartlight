@@ -11,6 +11,7 @@ Hardware - A0.4
 Comments - add where the commad come from when it's changes (motion, time, aws, sequence)
          - motionActivation is still buggy and requres work  
 
+
 Libraries 
     
 Repo - michaelgamston/MVP
@@ -30,9 +31,7 @@ static SoftwareSerial softSerial (rxPin, txPin);
 
 // Light level 
 //currently anything 99 is full brightness, 10 and below turns the lamp off 
-
 static int currentLightLevel = 0;
-
 
 // Dali Sequence activation
 bool daliSequenceFlag = false; 
@@ -40,7 +39,6 @@ bool sequenceQueueFlag = false;
 bool sequenceTaskFlag = false;
 static TaskHandle_t sequenceTask; 
 static QueueHandle_t sequenceQueue;
-
 
 
 void daliINIT(void){
@@ -145,6 +143,7 @@ void daliSequence(void* parameters){
         }
     }
 }
+
 
 void daliSend(int lightLevel){
     
