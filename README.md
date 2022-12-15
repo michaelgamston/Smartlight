@@ -7,10 +7,14 @@ Features:
 - SPI comms
 - Image handling
 - AWS light level commands 
-- DALI contol using UART 
+- DALI sequencing 
+- DALI activation simulation
 - Time keeping 
 - SPIFFS 
 - AWS communication
+
+Unit doesn't not turn the lamp on, this for data collection and system testing purposes.
+It simulates the light turning on but not command is sent to the DALI.
 
 ## Serial Comms Wiring
 
