@@ -23,6 +23,7 @@ Branch - main
 
 extern bool daliTestSwitchFlag; 
 
+
 /* 
     
     Input: N/A
@@ -34,6 +35,12 @@ extern bool daliTestSwitchFlag;
 
 */
 void daliINIT(void);
+
+void daliClearSequence(void);
+
+bool daliSequenceInit(StaticJsonDocument<200> sequence);
+
+void daliSequence(void* parameters);
 
 /* 
     

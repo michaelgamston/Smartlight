@@ -34,6 +34,14 @@ static SoftwareSerial softSerial (rxPin, txPin);
 static int currentLightLevel = 0;
 
 
+// Dali Sequence activation
+bool daliSequenceFlag = false; 
+bool sequenceQueueFlag = false;
+bool sequenceTaskFlag = false;
+static TaskHandle_t sequenceTask; 
+static QueueHandle_t sequenceQueue;
+
+
 
 void daliINIT(void){
 
@@ -142,7 +150,7 @@ void daliSend(int lightLevel){
     
     Serial.println();
     if(lightLevel != currentLightLevel){
-        softSerial.write(lightLevel);
+        //softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
         updateLogFile(lightLevel);
         Serial.print("New light level sent: ");
