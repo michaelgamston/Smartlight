@@ -18,11 +18,11 @@ LOAD_PATH = "~/Pictures/hexImages/"
 SAVE_PATH = "~/Pictures/images/"  # change this to whichever directory you want to dump images
 
 
-def main(file=None, H=None, W=None, show=False):
+def main(file=None, H=None, W=None, show=True):
     full_load_path = os.path.expanduser(LOAD_PATH + file)
     # open binary file and read into hex string
     with open(full_load_path, "rb") as f:
-        s = binascii.hexlify(f.read())
+        s = binascii.a2b_hex(f.read())
     # Hex string to 2d np array
     im_arr = np.array([int(s[i : i + 2], 16) for i in range(0, W * H * 2, 2)]).reshape(
         (H, W)
@@ -57,9 +57,9 @@ if __name__ == "__main__":
         "-n",
         help="path to binary file",
         type=str,
-        default="1",
+        default="3",
     )
-    parser.add_argument("-H", help="Image height dim", type=check_positive)
+    parser.add_argument("-H", help="Image height dimension", type=check_positive)
     parser.add_argument("-W", help="Image width dimension", type=check_positive)
     args = parser.parse_args()
     main(**vars(args))
