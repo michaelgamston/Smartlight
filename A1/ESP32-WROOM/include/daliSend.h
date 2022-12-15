@@ -63,7 +63,7 @@ void daliMotionInit(void);
     Comments: N/A
 
 */
-void checkActivationFlag(void* parameters);
+void daliCheckActivationFlag(void* parameters);
 
 /* 
     

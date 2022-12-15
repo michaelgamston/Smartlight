@@ -50,25 +50,21 @@ static bool callbackFlag = false;
   }
 #endif
 
-#ifdef USE_WIFI
-  WiFiClientSecure net = WiFiClientSecure();
-  PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, net);
-#else
-    #include <TinyGsmClient.h>
-    #include <SSLClient.h>
+#include <TinyGsmClient.h>
+#include <SSLClient.h>
 
-    #define MODEM_UART_BAUD     115200
-    #define PWR_PIN             4
-    #define POWER_PIN           25
-    #define IND_PIN             36
+#define MODEM_UART_BAUD     115200
+#define PWR_PIN             4
+#define POWER_PIN           25
+#define IND_PIN             36
 
-    #define AWS_IOT_PUBLISH_TOPIC   "test"
+#define AWS_IOT_PUBLISH_TOPIC   "test"
 
-    TinyGsm modem(Serial1);
-    TinyGsmClient LTE_client(modem);
-    SSLClient LTE_secureClient(&LTE_client);
-    PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
-#endif
+TinyGsm modem(Serial1);
+TinyGsmClient LTE_client(modem);
+SSLClient LTE_secureClient(&LTE_client);
+PubSubClient client(AWS_IOT_ENDPOINT.c_str(), 8883, messageHandler, LTE_secureClient);
+
 
 void checkMQTT(void* parameters){
   while(1){
@@ -104,12 +100,12 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
 
       case 3: 
         //not tested any of these 
-        char* mode = doc["mode"];
-        if (mode == "high") daliSelectMode(High);
-        else if (mode == "low") daliSelectMode(Low);
-        else if (mode == "standby") daliSelectMode(Standby);
-        else if (mode == "timeActivation") daliSelectMode(TimeActivation);
-        else if (mode == "motionActivation") daliSelectMode(MotionActivation);
+        if (doc["mode"] == "high") daliSelectMode(High);
+        else if (doc["mode"] == "low") daliSelectMode(Low);
+        else if (doc["mode"] == "standby") daliSelectMode(Standby);
+        else if (doc["mode"] == "timeActivation") daliSelectMode(TimeActivation);
+        else if (doc["mode"] == "motionActivation") daliSelectMode(MotionActivation);
+        break;
 
       case 4:
         // call this based on topic not instruction
@@ -133,8 +129,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         // }
         daliSelectMode(SequenceActivation);
         daliSequenceInit(doc["sequence"]);
-      
-      break;
+        break;
     }
 }
 
@@ -153,80 +148,6 @@ void send_image(uint8_t *im, size_t size)
     xSemaphoreGive(mutex);
   }
 } 
-
-void send_params()
-{
-  StaticJsonDocument<200> doc; // TODO calculate size needed here (in place of 200)
-  // doc["height"] = H;
-  // doc["width"] = W;
-  // doc["blocksize"] = BLOCK_SIZE;
-  doc["device_id"] = "id";
-  char jsonBuffer[512]; // TODO calculate size needed here (in place of 500)
-  serializeJson(doc, jsonBuffer); // print to client
-  if(xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE){
-    client.publish(AWS_IOT_PUBLISH_PARAMS_TOPIC, jsonBuffer);
-    xSemaphoreGive(mutex);
-  } 
-  Serial.println("PARAMS PUBLISHED");
-}
-
-#ifdef USE_WIFI
-
-bool connectAWS()
-{
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  // wifi connectivity is acheived with the following 14 lines
-  //wifi station mode (standard wifi connection mode)
-  WiFi.mode(WIFI_STA);
-  //pass wifi credentails for connection
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  Serial.println("CONNECTING TO Wi-Fi");
-
-  // while wifi isnt connected print message and wait for connection before moving on 
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-    Serial.print(".");
-  }
-
-#ifdef SPIFFSdef
-  getSPIFFS();
-#endif
-
-  // Configure WiFiClientSecure to use the AWS IoT device credentials
-  net.setCACert(AWS_CERT_CA.c_str());
-  Serial.println("CA set");
-  net.setCertificate(AWS_CERT_CRT.c_str());
-  Serial.println("CRT set");
-  net.setPrivateKey(AWS_CERT_PRIVATE.c_str());
-  Serial.println("Priv key set");
-
-  // Connect to the MQTT broker on the AWS endpoint we defined earlier
-  // Create a message handler
-
-  Serial.println("CONNECTING TO AWS IOT");
-
-  while (!client.connect(THINGNAME.c_str()))
-  {
-    Serial.print(".");
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-  }
-
-  if (!client.connected())
-  {
-    Serial.println("AWS IoT TIMEOUT!");
-    return false;
-  }
-
-  // Subscribe to a topic
-  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
-
-  Serial.println("AWS IoT TOPIC SUBSCRIBED");
-  return true;
-}
-
-#else
 
 // PWR_PIN : This Pin is the PWR-KEY of the SIM7600
 // The time of active low level impulse of PWRKEY pin to power on module 500 ms
@@ -389,4 +310,3 @@ bool LTE_publish(const char *message, const char* topic)
     return false;
 }
 
-#endif
