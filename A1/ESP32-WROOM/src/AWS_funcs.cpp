@@ -40,6 +40,7 @@ PubSubClient client(LTE_secureClient);
 //topics 
 const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "Images";
 const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
+const char* AWS_IOT_PUBLISH_SERIAL_TOPIC = "Serial";
 
 const char* AWS_IOT_SUBSCRIBE_TOPIC = "Instruction";
 const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
@@ -101,6 +102,9 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         // }
         daliSequenceInit(doc["sequence"]);
       break;
+      case 6:
+        ESP.restart();
+        break;
     }
 }
 

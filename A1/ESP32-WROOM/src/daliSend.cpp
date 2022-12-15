@@ -150,7 +150,7 @@ void daliSend(int lightLevel){
     
     Serial.println();
     if(lightLevel != currentLightLevel){
-        //softSerial.write(lightLevel);
+        softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
         updateLogFile(lightLevel);
         Serial.print("New light level sent: ");

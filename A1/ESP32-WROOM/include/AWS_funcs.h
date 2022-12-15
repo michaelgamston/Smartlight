@@ -28,8 +28,8 @@ Branch - main
 
 // Constants
 extern const char* AWS_IOT_PUBLISH_IMAGES_TOPIC;
-extern const char* AWS_IOT_PUBLISH_PARAMS_TOPIC;
 extern const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC;
+extern const char* AWS_IOT_PUBLISH_SERIAL_TOPIC;
 
 extern const char* AWS_IOT_SUBSCRIBE_TOPIC;
 extern const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC;

@@ -1,4 +1,5 @@
 #include "ESPtime.h"
+#include "AWS_funcs.h"
 
 ESP32Time ESPtime(0);
 
@@ -12,5 +13,6 @@ void setTime(StaticJsonDocument<200> doc){
     Serial.print("Time has been set to: ");
     Serial.println(ESPtime.getDateTime());
     timeSetFlag = true;
+    LTE_publish("Time has been set", AWS_IOT_PUBLISH_SERIAL_TOPIC);
     
 }
