@@ -72,6 +72,8 @@ void daliClearSequence(void){
 
 bool daliSequenceInit(StaticJsonDocument<200> sequence){
 
+    daliClearSequence();
+
     BaseType_t queueCheckOne;
     BaseType_t queueCheckTwo;
 
@@ -150,11 +152,16 @@ void daliSend(int lightLevel){
     Serial.println();
     //checks because cubik's code breaks when values are 
     if (lightLevel > 98) lightLevel = 98;
-    if (lightLevel < 10) lightLevel= 0;
-    if(lightLevel != currentLightLevel){
+    if (lightLevel < 10) lightLevel = 9;
+    if (lightLevel != currentLightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
-        updateLogFile(lightLevel);
+        if(lightLevel == 9){
+            updateLogFile(0);
+        }
+        else {
+            updateLogFile(lightLevel);
+        }
         Serial.print("New light level sent: ");
         Serial.println(currentLightLevel);
     }else {

@@ -81,20 +81,19 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
       case 1: 
         Serial.printf(doc["message"]);
         break;
-        // OTA update instrucion
-
       case 2:
+        // direct light level instruction
+        daliClearSequence();
         daliSend(doc["lightLevel"]);
         break;
       case 3:
-        // call this based on topic not instruction
-        // put this in one function in ESPtime 
+        // set time 
         setTime(doc);
         break;
       case 5: 
         //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
         // {
-        //   "instruction" : 4,
+        //   "instruction" : 5,
         //   "sequence": {
         //      "size": 2,
         //      "instructionList" : [99, 1000, 50, 1000]
@@ -103,9 +102,11 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         daliSequenceInit(doc["sequence"]);
       break;
       case 6:
+        // restart esp
         ESP.restart();
         break;
       case 7:
+        //clear sequence 
         daliClearSequence();
         break;
     }
