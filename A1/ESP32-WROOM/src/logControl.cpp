@@ -21,14 +21,17 @@ Branch - main
 */
 #include "logControl.h"
 
-static char dateTimeLevelLog[35];
+static char dateTimeLevelLog[35] = "";
+static char head[25] = "";
+static char tail[25] = "";
 static const char* path = "/LogFile.txt";
+static int lines = 1;
+static int version = 1;
 
 void updateLogFile(int lightLevel) {
-
-    const String prefix = ESPtime.getTime();
-    sprintf(dateTimeLevelLog, "Level changed to %i. Change occured at %s \n", lightLevel, prefix.c_str());
-    Serial.print("log file updated with '");
+    sprintf(dateTimeLevelLog, "UUUUUUUUUUUU %i %i %i %i.00I\n", ESPtime.getHour(), ESPtime.getMinute(), ESPtime.getSecond(), lightLevel);
+    lines++;
+    Serial.print("log file updated with ");
     Serial.println(dateTimeLevelLog);
     appendFile(SPIFFS, path, dateTimeLevelLog);
 }
@@ -36,16 +39,26 @@ void updateLogFile(int lightLevel) {
 void logFileToAWS(void* parameters) {
 
     while(1){ 
-        // 60000ms or triggers every minuet
-        vTaskDelay(60000/ portTICK_PERIOD_MS);
+        // every 30 mins 
+        vTaskDelay(1800000/ portTICK_PERIOD_MS);
         if(checkSize(SPIFFS, path) > 0){
             Serial.println("Sending log file to aws");
+            sprintf(tail, "T%i", lines+1);
+            appendFile(SPIFFS, path, tail);
             String contents = fileToString(SPIFFS, path);
             LTE_publish(contents.c_str(), AWS_IOT_PUBLISH_LOGFILES_TOPIC);
             //opening the file in write mode and not append should clean it contents 
             createFile(SPIFFS, path);
+            version++;
+            sprintf(head, "HMMMMMMM %i %i %i VVV\n", ESPtime.getYear(), ESPtime.getMonth()+1, ESPtime.getDay());
+            appendFile(SPIFFS, path, head);
+            lines = 1;
             Serial.println("Log file sent to aws");
-        }    
+        }else{
+            appendFile(SPIFFS, path, "No light level changes recorded.");
+            String contents = fileToString(SPIFFS, path);
+            LTE_publish(contents.c_str(), AWS_IOT_PUBLISH_LOGFILES_TOPIC);
+        }
     }
        
 }
@@ -57,6 +70,8 @@ bool logFileInit(void){
     if(!checkFile(SPIFFS, path)){
         return false;
     }
+    sprintf(head, "HMMMMMMM %i %i %i VVV\n", ESPtime.getYear(), ESPtime.getMonth()+1, ESPtime.getDay());
+    appendFile(SPIFFS, path, head);
     if(xTaskCreatePinnedToCore(
         logFileToAWS,
         "sends log file to aws every 30 mins",
@@ -64,7 +79,7 @@ bool logFileInit(void){
         NULL,
         2,
         NULL,
-        1
+        0
     ) == pdFALSE) {
         Serial.println("Task failed to create");
         return false;
@@ -74,3 +89,4 @@ bool logFileInit(void){
     return true;
 
 }
+

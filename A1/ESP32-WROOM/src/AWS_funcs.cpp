@@ -110,12 +110,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
       case 4:
         // call this based on topic not instruction
         // put this in one function in ESPtime 
-        struct tm timeinfo;
-        strptime(doc["time"], "%FT%TZ", &timeinfo);
-        ESPtime.setTimeStruct(timeinfo);
-        Serial.print("Time has been set to: ");
-        Serial.println(ESPtime.getDateTime());
-        timeSetFlag = true;
+        setTime(doc);
         break;
 
       case 5: 
