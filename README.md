@@ -8,7 +8,6 @@ Features:
 - Image handling
 - AWS light level commands 
 - DALI sequencing 
-- DALI activation simulation
 - Time keeping 
 - SPIFFS 
 - AWS communication
