@@ -97,13 +97,16 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
         //   "instruction" : 4,
         //   "sequence": {
         //      "size": 2,
-        //      "instructionList" : [100, 1000, 50, 1000]
+        //      "instructionList" : [99, 1000, 50, 1000]
         //   }
         // }
         daliSequenceInit(doc["sequence"]);
       break;
       case 6:
         ESP.restart();
+        break;
+      case 7:
+        daliClearSequence();
         break;
     }
 }

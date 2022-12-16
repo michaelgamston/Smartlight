@@ -40,7 +40,7 @@ void logFileToAWS(void* parameters) {
 
     while(1){ 
         // every 30 mins 
-        vTaskDelay(60000/ portTICK_PERIOD_MS);
+        vTaskDelay(1800000/ portTICK_PERIOD_MS);
         if(checkSize(SPIFFS, path) > 0){
             Serial.println("Sending log file to aws");
             sprintf(tail, "T%i", lines+1);

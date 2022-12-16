@@ -36,10 +36,50 @@ extern bool daliTestSwitchFlag;
 */
 void daliINIT(void);
 
+/* 
+    
+    Input: N/A 
+    Output: N/A
+    Return: N/A  
+    Action: 
+        - Deletes daliSquenceQueue
+        - Deletes dalueSquenceTask
+        - changes daliSequenceFlag to false 
+    Comments: N/A
+
+*/
 void daliClearSequence(void);
 
+/* 
+    
+    Input: 
+        - StaticJsonDocument<200 bytes> sequence  
+    Output: 
+        - Queues instructions and delays
+    Return: N/A  
+    Action: 
+        - Decode json document 
+        - Creates Queue
+        - Fills Queue 
+        - Creates task
+    Comments: N/A
+
+*/
 bool daliSequenceInit(StaticJsonDocument<200> sequence);
 
+/* 
+    
+    Input: 
+        - void* parameters 
+    Output: calls daliSend with instructed light level and the delays an instructed amount of time 
+    Return: N/A  
+    Action: 
+        - creats array of instructions 
+        - takes intructions from the queue and into the array 
+        - loops over instructions and delays  
+    Comments: N/A
+
+*/
 void daliSequence(void* parameters);
 
 /* 

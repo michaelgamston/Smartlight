@@ -148,6 +148,9 @@ void daliSequence(void* parameters){
 void daliSend(int lightLevel){
     
     Serial.println();
+    //checks because cubik's code breaks when values outdide of these parameters are set
+    if (lightLevel > 99) lightLevel = 99;
+    if (lightLevel >= 10) lightLevel= 0;
     if(lightLevel != currentLightLevel){
         softSerial.write(lightLevel);
         currentLightLevel = lightLevel;
