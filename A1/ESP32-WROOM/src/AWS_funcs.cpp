@@ -24,10 +24,10 @@ Branch - main
 
 //topics 
 const char* AWS_IOT_PUBLISH_IMAGES_TOPIC = "Images";
-const char* AWS_IOT_PUBLISH_PARAMS_TOPIC = "TestRX";
 const char* AWS_IOT_PUBLISH_LOGFILES_TOPIC = "logTopic";
+const char* AWS_IOT_PUBLISH_SERIAL_TOPIC = "Serial";
 
-const char* AWS_IOT_SUBSCRIBE_TOPIC = "TestTX";
+const char* AWS_IOT_SUBSCRIBE_TOPIC = "Instruction";
 const char* AWS_IOT_SUBSCRIBE_TIME_TOPIC = "Time";
 
 static SemaphoreHandle_t mutex;

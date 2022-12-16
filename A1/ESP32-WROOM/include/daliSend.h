@@ -50,6 +50,11 @@ enum daliMode{
 */
 void daliINIT(void);
 
+/* 
+    
+    In development
+
+*/
 void daliMotionInit(void);
 
 /* 
@@ -89,17 +94,39 @@ void daliChangeFlagStatus(bool status);
 */
 void daliTimeActivation(void* parameters);
 
+/* 
+    
+    In development
+
+*/
 void daliSelectMode(daliMode newMode);
 
+/* 
+    
+    Input: N/A 
+    Output: N/A
+    Return: N/A  
+    Action: 
+        - Deletes daliSquenceQueue
+        - Deletes dalueSquenceTask
+        - changes daliSequenceFlag to false 
+    Comments: N/A
+
+*/
 void daliClearSequence(void);
 
 /* 
     
-    Input: int *lightTime 
-    Output: sets the lightTime array for use in the thread
+    Input: 
+        - StaticJsonDocument<200 bytes> sequence  
+    Output: 
+        - Queues instructions and delays
     Return: N/A  
     Action: 
-        - creates thread for daliTestSwitch
+        - Decode json document 
+        - Creates Queue
+        - Fills Queue 
+        - Creates task
     Comments: N/A
 
 */
@@ -107,12 +134,14 @@ bool daliSequenceInit(StaticJsonDocument<200> sequence);
 
 /* 
     
-    Input: int *lightTime 
-    Output: sends selected light levels through to the dali controler 
+    Input: 
+        - void* parameters 
+    Output: calls daliSend with instructed light level and the delays an instructed amount of time 
     Return: N/A  
     Action: 
-        - runs through the given array 
-        - send a light level from the array and the waits the given time before sending the next 
+        - creats array of instructions 
+        - takes intructions from the queue and into the array 
+        - loops over instructions and delays  
     Comments: N/A
 
 */
