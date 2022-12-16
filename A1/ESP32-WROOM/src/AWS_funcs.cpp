@@ -121,7 +121,7 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
       case 5: 
         //expect a map containing number of instructions, and then instructions with index. [brightness %, and ms delay]
         // {
-        //   "instruction" : 4,
+        //   "instruction" : 5,
         //   "sequence": {
         //      "size": 2,
         //      "instructionList" : [100, 1000, 50, 1000]
