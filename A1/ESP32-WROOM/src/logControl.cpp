@@ -39,7 +39,7 @@ void updateLogFile(int lightLevel) {
 void logFileToAWS(void* parameters) {
 
     while(1){ 
-        // every 30 mins 
+        // every 30 mins is 1800000ms
         vTaskDelay(1800000/ portTICK_PERIOD_MS);
         if(checkSize(SPIFFS, path) > 0){
             Serial.println("Sending log file to aws");
