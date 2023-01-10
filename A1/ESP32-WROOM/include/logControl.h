@@ -54,3 +54,15 @@ void logFileToAWS(const char* path);
     Comments: N/A
 */
 bool logFileInit(void);
+
+/*
+    Input: String logfile
+    Output: manipulates buffer
+    Return: N/A  
+    Action: 
+        - clears the buffer
+        - serializes logfile into json document with the version number 
+        - adds the json to the buffer
+    Comments: N/A
+*/
+void jsonify(String logfile);
