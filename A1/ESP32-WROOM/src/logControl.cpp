@@ -30,8 +30,7 @@ static int version = 1;
 static char buffer[256];
 
 void updateLogFile(int lightLevel) {
-    sprintf(dateTimeLevelLog, "UUUUUUUUUUUU %i %i %i %i.00I\n", ESPtime.getHour(true), ESPtime.getMinute(), ESPtime.getSecond(), lightLevel);
-    lines++;
+    sprintf(dateTimeLevelLog, "UUUUUUUUUUUU%0*i%0*i%0*i%0*i.00I\n", 2, ESPtime.getHour(true), 2, ESPtime.getMinute(), 2, ESPtime.getSecond(), 3, lightLevel);    lines++;
     Serial.print("log file updated with ");
     Serial.println(dateTimeLevelLog);
     appendFile(SPIFFS, path, dateTimeLevelLog);
@@ -45,7 +44,7 @@ void logFileToAWS(void* parameters) {
         vTaskDelay(60000/ portTICK_PERIOD_MS);
         if(checkSize(SPIFFS, path) > 0){
             Serial.println("Sending log file to aws");
-            sprintf(tail, "T%i", lines+1);
+            sprintf(tail, "T%0*i", 7, lines+1);
             appendFile(SPIFFS, path, tail);
             String contents = fileToString(SPIFFS, path);
             jsonify(contents);
@@ -53,7 +52,7 @@ void logFileToAWS(void* parameters) {
             //opening the file in write mode and not append should clean it contents 
             createFile(SPIFFS, path);
             version++;
-            sprintf(head, "HMMMMMMM %i %i %i VVV\n", ESPtime.getYear(), ESPtime.getMonth()+1, ESPtime.getDay());
+            sprintf(head, "HMMMMMMM%0*i%0*i%0*i%0*i\n", 4, ESPtime.getYear(), 2, ESPtime.getMonth()+1, 2, ESPtime.getDay(), 3, version);
             appendFile(SPIFFS, path, head);
             lines = 1;
             Serial.println("Log file sent to aws");
@@ -74,7 +73,7 @@ bool logFileInit(void){
     if(!checkFile(SPIFFS, path)){
         return false;
     }
-    sprintf(head, "HMMMMMMM %i %i %i VVV\n", ESPtime.getYear(), ESPtime.getMonth()+1, ESPtime.getDay());
+    sprintf(head, "HMMMMMMM%0*i%0*i%0*i%0*i\n", 4, ESPtime.getYear(), 2, ESPtime.getMonth()+1, 2, ESPtime.getDay(), 3, version);
     appendFile(SPIFFS, path, head);
     if(xTaskCreatePinnedToCore(
         logFileToAWS,
