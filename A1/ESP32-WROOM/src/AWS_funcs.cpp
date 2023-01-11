@@ -155,6 +155,77 @@ void modemPowerOn()
   digitalWrite(PWR_PIN, HIGH);
 }
 
+void timeQuery() 
+{
+struct tm timeinfo;
+modem.sendAT(GF("+CCLK?"));
+modem.waitResponse(GF(GSM_NL));
+String cclk = modem.stream.readStringUntil('\n');
+modem.waitResponse();
+String currentDt = cclk.substring(cclk.indexOf("\"")+1, cclk.lastIndexOf("\""));
+currentDt.trim();
+getLocalTime(&timeinfo);
+char s[51];
+strftime(s, 50, "%A, %B %d %Y %H:%M:%S", &timeinfo);
+
+Serial.print("\r\nCCLK: ");
+Serial.println(cclk);
+
+Serial.print("\r\ncurrentDt from SIM7600: ");
+Serial.println(currentDt);
+
+Serial.print("\r\ncurrentDt from ESP32: ");
+Serial.println(String(s));
+}
+
+void timeSet()
+{
+modem.sendAT(GF("+CNTPCID=1"));
+modem.waitResponse();
+
+modem.sendAT(GF("+CNTP=\"pool.ntp.org\",0"));
+modem.waitResponse();
+
+modem.sendAT(GF("+CNTP"));
+modem.waitResponse(3000, GF("+CNTP: 1" GSM_NL));
+
+modem.sendAT(GF("+CCLK?"));
+modem.waitResponse(GF(GSM_NL));
+String cclk = modem.stream.readStringUntil('\n');
+modem.waitResponse();
+Serial.print("\r\nCCLK: ");
+Serial.println(cclk);
+String currentDt = cclk.substring(cclk.indexOf("\"")+1, cclk.lastIndexOf("\""));
+currentDt.trim();
+Serial.print("\r\ncurrentDt: ");
+Serial.println(currentDt);
+
+int hh, mm, ss, yy, mon, day, tz;
+struct tm when = {0};
+time_t epoch = 0;
+
+sscanf(currentDt.c_str(), "%d/%d/%d,%d:%d:%d-%d", &yy, &mon, &day, &hh, &mm, &ss, &tz);
+when.tm_hour = hh;
+when.tm_min = mm;
+when.tm_sec = ss;
+when.tm_year = 2000 + yy - 1900;
+
+when.tm_mon = mon - 1;
+when.tm_mday = day;
+when.tm_isdst = -1;
+epoch = mktime(&when);
+struct timeval tv;
+tv.tv_sec = epoch+1;
+tv.tv_usec = 0;
+settimeofday(&tv, NULL);
+
+epoch = epoch + (60 * (tz/4) * 60);
+Serial.print("CURRENT EPOCH:");
+Serial.println(epoch);
+
+timeQuery();
+}
+
 bool LTE_connect()
 {
     Serial.println("Initializing modem ...");
@@ -225,6 +296,8 @@ bool LTE_connect()
     int signalQuality = modem.getSignalQuality();
     Serial.print("Signal quality: ");
     Serial.println(signalQuality);
+
+    timeSet();
 
     //if (http_test()) Serial.println("http successful");
 
