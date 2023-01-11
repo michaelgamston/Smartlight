@@ -28,12 +28,15 @@ static const char* path = "/LogFile.txt";
 static int lines = 1;
 static int version = 1;
 static char buffer[256];
+static SemaphoreHandle_t logFileMutex;
 
 void updateLogFile(int lightLevel) {
+    xSemaphoreTake(logFileMutex, portMAX_DELAY);
     sprintf(dateTimeLevelLog, "UUUUUUUUUUUU%0*i%0*i%0*i%0*i.00I\n", 2, ESPtime.getHour(true), 2, ESPtime.getMinute(), 2, ESPtime.getSecond(), 3, lightLevel);    lines++;
     Serial.print("log file updated with ");
     Serial.println(dateTimeLevelLog);
     appendFile(SPIFFS, path, dateTimeLevelLog);
+    xSemaphoreGive(logFileMutex);
 }
 
 void logFileToAWS(void* parameters) {
@@ -42,6 +45,7 @@ void logFileToAWS(void* parameters) {
         // every 30 mins is 1800000ms 
         //CHANGE TO SEND ON THE HOUR AND HALF HOUR 
         vTaskDelay(60000/ portTICK_PERIOD_MS);
+        xSemaphoreTake(logFileMutex, portMAX_DELAY);
         if(checkSize(SPIFFS, path) > 0){
             Serial.println("Sending log file to aws");
             sprintf(tail, "T%0*i", 7, lines+1);
@@ -62,6 +66,7 @@ void logFileToAWS(void* parameters) {
             jsonify(contents);
             LTE_publish(buffer, AWS_IOT_PUBLISH_LOGFILES_TOPIC);
         }
+        xSemaphoreGive(logFileMutex);
     }
        
 }
@@ -69,6 +74,7 @@ void logFileToAWS(void* parameters) {
 bool logFileInit(void){
 
     Serial.println("Log file init start");
+    logFileMutex = xSemaphoreCreateMutex();
     createFile(SPIFFS, path);
     if(!checkFile(SPIFFS, path)){
         return false;

@@ -297,9 +297,7 @@ bool LTE_connect()
     Serial.println(signalQuality);
 
     timeSet();
-
-    //if (http_test()) Serial.println("http successful");
-
+    
     return true;
 }
 
