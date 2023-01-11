@@ -6,5 +6,3 @@
 extern ESP32Time ESPtime;
 
 extern bool timeSetFlag; 
-
-void setTime(StaticJsonDocument<200> doc);

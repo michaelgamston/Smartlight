@@ -22,7 +22,7 @@ Branch - main
 #pragma once
 
 #include "MySPIFFS.h"
-#include "AWS_funcs.h"
+#include "IoTFuncs.h"
 #include "ESPtime.h"
 
 /*
