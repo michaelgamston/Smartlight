@@ -18,7 +18,7 @@ Branch - main
 */
 
 #include "spi_comms.h"
-#include "AWS_funcs.h"
+#include "IoTFuncs.h"
 #include "daliSend.h"
 
 SPIClass* hspi = NULL;

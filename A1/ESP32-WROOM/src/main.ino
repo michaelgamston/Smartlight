@@ -20,7 +20,7 @@ Branch - main
 #include <Arduino.h>
 
 #include "spi_comms.h"
-#include "AWS_funcs.h"
+#include "IoTFuncs.h"
 #include "MySPIFFS.h"
 #include "mesh.h"
 #include "daliSend.h"
