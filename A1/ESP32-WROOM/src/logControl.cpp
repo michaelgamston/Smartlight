@@ -66,7 +66,11 @@ void logFileToAWS(void* parameters) {
        
 }
 
+// ADDING A WAIT HERE SO THE LOG FILES ONLY START TO BE CREATED AFTER THE TIME IS SET 
 bool logFileInit(void){
+
+    //this needs to be changed, wrap function in a task so it's none blocking 
+    while(!timeSetFlag);
 
     Serial.println("Log file init start");
     createFile(SPIFFS, path);

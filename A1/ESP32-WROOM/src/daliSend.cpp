@@ -159,6 +159,7 @@ void daliTimeActivation(void* parameters){
     }
 }
 
+//FINISH ME 
 // not tested 
 void daliSelectMode(daliMode newMode){
 

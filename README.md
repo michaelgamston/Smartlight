@@ -2,10 +2,9 @@
 Remember before launch to #define out any debuging. I.e serial stuff as this won't have function in final MVP product. 
 
 # TODO 
-    Mile stones for 0.1.1 
-        - complete log file to correct formate 
-        - resolve SPI freezing
-        - create device shadow (AWS serial monitor)
+    - Change ESPtime to work from LTE 
+    - Make sure logs are only created once ESP has time 
+    - finish updates in dalisend 
 
 # Michaels last changes
 
