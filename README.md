@@ -8,9 +8,9 @@ Remember before launch to #define out any debuging. I.e serial stuff as this won
 
 # Michaels last changes
 
-added task creation or checkMQTT with flag check to connectAWS()
-completed work with dali sequecing 
-added experimental functions for dali controll 
+added a wait in logfileINIT so it won't create the file until time has been set 
+changed the logfile format to JSON
+Created an AWS lambda function to format the file 
 
 # Roberts last changes
 
