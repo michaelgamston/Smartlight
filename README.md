@@ -2,15 +2,15 @@
 Remember before launch to #define out any debuging. I.e serial stuff as this won't have function in final MVP product. 
 
 # TODO 
-    - Change ESPtime to work from LTE 
-    - Make sure logs are only created once ESP has time 
     - finish updates in dalisend 
+    - get the images decoder working
 
 # Michaels last changes
 
 added a wait in logfileINIT so it won't create the file until time has been set 
 changed the logfile format to JSON
 Created an AWS lambda function to format the file 
+added a mutex to logfiles 
 
 # Roberts last changes
 
